@@ -1,0 +1,895 @@
+{{ header }}
+{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="submit" form="form-square-checkout" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+                <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% for alert in alerts %}
+            <div class="alert alert-{{ alert.type }}"><i class="fa fa-{{ alert.icon }}"></i>&nbsp;{{ alert.text }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endfor %}
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-pencil"></i>&nbsp;{{ text_edit_heading }}</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-square-checkout" class="form-horizontal">
+                    <input type="hidden" name="payment_transactpro_card" value="1" />
+                    <ul class="nav nav-tabs">
+                        <li><a href="#tab-setting" data-toggle="tab"><i class="fa fa-gear"></i>&nbsp;{{ tab_setting }}</a></li>
+                        <li><a href="#tab-transaction" data-toggle="tab"><i class="fa fa-list"></i>&nbsp;{{ tab_transaction }}</a></li>
+                        <li><a href="#tab-cron" data-toggle="tab"><i class="fa fa-clock-o"></i>&nbsp;{{ tab_cron }}</a></li>
+                        <li><a href="#tab-recurring" data-toggle="tab"><i class="fa fa-hourglass-half"></i>&nbsp;{{ tab_recurring }}</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane" id="tab-setting">
+                            <fieldset>
+                                <legend>{{ heading_settings }}</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_status"><span data-toggle="tooltip" title="{{ extension_status_help }}">{{ extension_status_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_status" id="dropdown_payment_transactpro_status" class="form-control">
+                                            <option value="1" {% if payment_transactpro_status == 1 %} selected {% endif %}>{{ extension_status_entry_enabled }}</option>
+                                            <option value="0" {% if payment_transactpro_status == 0 %} selected {% endif %}>{{ extension_status_entry_disabled }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        <span data-toggle="tooltip" title="{{ payment_method_name_help }}">{{ payment_method_name_label }}</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        {% for language in languages %}
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><img src="{{ language.image }}" alt="{{ language.name }}" /></span>
+                                                <input type="text" name="payment_transactpro_display_name[{{ language.language_id }}]" value="{{ payment_transactpro_display_name[language.language_id] ?? payment_method_name_entry }}" placeholder="{{ payment_method_name_entry }}" class="form-control"/>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_callback_uri_static">
+                                        <span data-toggle="tooltip" title="{{ callback_uri_help}}">{{ callback_uri_label }}</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" id="input_payment_transactpro_callback_uri_static" name="input_payment_transactpro_callback_uri_static" value="{{ payment_transactpro_callback_uri }}" class="form-control" disabled />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_redirect_uri_static">
+                                        <span data-toggle="tooltip" title="{{ redirect_uri_help}}">{{ redirect_uri_label }}</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" id="input_payment_transactpro_redirect_uri_static" name="input_payment_transactpro_redirect_uri_static" value="{{ payment_transactpro_redirect_uri }}" class="form-control" disabled />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_gateway_uri">
+                                        <span data-toggle="tooltip" title="{{ gw_uri_help}}">{{ gw_uri_label }}</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" id="input_payment_transactpro_gateway_uri" name="payment_transactpro_gateway_uri" value="{{ payment_transactpro_gateway_uri }}" placeholder="{{ gw_uri_entry }}" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="form-group required">
+                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_account_id">
+                                        <span data-toggle="tooltip" title="{{ account_id_help }}">{{ account_id_label }}</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="payment_transactpro_account_id" value="{{ payment_transactpro_account_id }}" placeholder="{{ account_id_entry }}" id="input_payment_transactpro_account_id" class="form-control"/>
+                                        {% if account_id_error %}
+                                            <div class="text-danger">{{ account_id_error }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="form-group required">
+                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_secret_key">
+                                        <span data-toggle="tooltip" title="{{ secret_key_help }}">{{ secret_key_label }}</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="payment_transactpro_secret_key" value="{{ payment_transactpro_secret_key }}" placeholder="{{ secret_key_entry }}" id="input_payment_transactpro_secret_key" class="form-control"/>
+                                        {% if secret_key_error %}
+                                            <div class="text-danger">{{ secret_key_error }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_payment_method">{{ payment_method_label }}</label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_payment_method" id="dropdown_payment_transactpro_payment_method" class="form-control">
+                                            <option value="1" {% if payment_transactpro_payment_method == 1 %} selected {% endif %}>{{ payment_method_entry_sms }}</option>
+                                            <option value="2" {% if payment_transactpro_payment_method == 2 %} selected {% endif %}>{{ payment_method_entry_dms_charge }}</option>
+                                            <option value="3" {% if payment_transactpro_payment_method == 3 %} selected {% endif %}>{{ payment_method_entry_dms_hold }}</option>
+                                            <option value="4" {% if payment_transactpro_payment_method == 4 %} selected {% endif %}>{{ payment_method_entry_credit }}</option>
+                                            <option value="5" {% if payment_transactpro_payment_method == 5 %} selected {% endif %}>{{ payment_method_entry_p2p }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_capture_method">{{ capture_method_label }}</label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_capture_method" id="dropdown_payment_transactpro_capture_method" class="form-control">
+                                            <option value="1" {% if payment_transactpro_capture_method == 1 %} selected {% endif %}>{{ capture_method_entry_merchant }}</option>
+                                            <option value="2" {% if payment_transactpro_capture_method == 2 %} selected {% endif %}>{{ capture_method_entry_gw }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_total">
+                                        <span data-toggle="tooltip" title="{{ total_help }}">{{ total_label }}</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="payment_transactpro_total" value="{{ payment_transactpro_total }}" placeholder="{{ total_entry }}" id="payment_transactpro_total" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                  <label class="col-sm-2 control-label" for="input-geo-zone">{{ geo_zone_label }}</label>
+                                  <div class="col-sm-10">
+                                    <select name="payment_transactpro_geo_zone_id" id="input-geo-zone" class="form-control">
+                                        <option value="0">{{ text_all_zones }}</option>
+                                        {% for geo_zone in geo_zones %}
+                                            <option value="{{ geo_zone.geo_zone_id }}" {% if geo_zone.geo_zone_id == payment_transactpro_geo_zone_id %} selected {% endif %}>{{ geo_zone.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_sort_order">{{ sort_order_label }}</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="payment_transactpro_sort_order" value="{{ payment_transactpro_sort_order }}" placeholder="{{ sort_order_entry }}" id="input_payment_transactpro_sort_order" class="form-control"/>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend>{{ heading_transaction_statuses }}</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_init"><span data-toggle="tooltip" title="{{ transaction_status_init_help }}">{{ transaction_status_init_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_init" id="dropdown_payment_transactpro_transaction_status_init" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_init %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_sent_to_bank"><span data-toggle="tooltip" title="{{ transaction_status_sent_to_bank_help }}">{{ transaction_status_sent_to_bank_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_sent_to_bank" id="dropdown_payment_transactpro_transaction_status_sent_to_bank" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_sent_to_bank %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_hold_ok"><span data-toggle="tooltip" title="{{ transaction_status_hold_ok_help }}">{{ transaction_status_hold_ok_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_hold_ok" id="dropdown_payment_transactpro_transaction_status_hold_ok" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_hold_ok %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_dms_hold_failed"><span data-toggle="tooltip" title="{{ transaction_status_dms_hold_failed_help }}">{{ transaction_status_dms_hold_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_dms_hold_failed" id="dropdown_payment_transactpro_transaction_status_dms_hold_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_dms_hold_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_sms_failed_sms"><span data-toggle="tooltip" title="{{ transaction_status_sms_failed_sms_help }}">{{ transaction_status_sms_failed_sms_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_sms_failed_sms" id="dropdown_payment_transactpro_transaction_status_sms_failed_sms" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_sms_failed_sms %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_dms_charge_failed"><span data-toggle="tooltip" title="{{ transaction_status_dms_charge_failed_help }}">{{ transaction_status_dms_charge_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_dms_charge_failed" id="dropdown_payment_transactpro_transaction_status_dms_charge_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_dms_charge_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_success"><span data-toggle="tooltip" title="{{ transaction_status_success_help }}">{{ transaction_status_success_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_success" id="dropdown_payment_transactpro_transaction_status_success" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_success %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_expired"><span data-toggle="tooltip" title="{{ transaction_status_expired_help }}">{{ transaction_status_expired_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_expired" id="dropdown_payment_transactpro_transaction_status_expired" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_expired %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_hold_expired"><span data-toggle="tooltip" title="{{ transaction_status_hold_expired_help }}">{{ transaction_status_hold_expired_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_hold_expired" id="dropdown_payment_transactpro_transaction_status_hold_expired" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_hold_expired %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_refund_failed"><span data-toggle="tooltip" title="{{ transaction_status_refund_failed_help }}">{{ transaction_status_refund_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_refund_failed" id="dropdown_payment_transactpro_transaction_status_refund_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_refund_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_refund_pending"><span data-toggle="tooltip" title="{{ transaction_status_refund_pending_help }}">{{ transaction_status_refund_pending_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_refund_pending" id="dropdown_payment_transactpro_transaction_status_refund_pending" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_refund_pending %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_refund_success"><span data-toggle="tooltip" title="{{ transaction_status_refund_success_help }}">{{ transaction_status_refund_success_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_refund_success" id="dropdown_payment_transactpro_transaction_status_refund_success" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_refund_success %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_dms_cancel_ok"><span data-toggle="tooltip" title="{{ transaction_status_dms_cancel_ok_help }}">{{ transaction_status_dms_cancel_ok_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_dms_cancel_ok" id="dropdown_payment_transactpro_transaction_status_dms_cancel_ok" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_dms_cancel_ok %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_dms_cancel_failed"><span data-toggle="tooltip" title="{{ transaction_status_dms_cancel_failed_help }}">{{ transaction_status_dms_cancel_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_dms_cancel_failed" id="dropdown_payment_transactpro_transaction_status_dms_cancel_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_dms_cancel_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_reversed"><span data-toggle="tooltip" title="{{ transaction_status_reversed_help }}">{{ transaction_status_reversed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_reversed" id="dropdown_payment_transactpro_transaction_status_reversed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_reversed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_input_validation_failed"><span data-toggle="tooltip" title="{{ transaction_status_input_validation_failed_help }}">{{ transaction_status_input_validation_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_input_validation_failed" id="dropdown_payment_transactpro_transaction_status_input_validation_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_input_validation_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_br_validation_failed"><span data-toggle="tooltip" title="{{ transaction_status_br_validation_failed_help }}">{{ transaction_status_br_validation_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_br_validation_failed" id="dropdown_payment_transactpro_transaction_status_br_validation_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_br_validation_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_terminal_group_select_failed"><span data-toggle="tooltip" title="{{ transaction_status_terminal_group_select_failed_help }}">{{ transaction_status_terminal_group_select_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_terminal_group_select_failed" id="dropdown_payment_transactpro_transaction_status_terminal_group_select_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_terminal_group_select_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_terminal_select_failed"><span data-toggle="tooltip" title="{{ transaction_status_terminal_select_failed_help }}">{{ transaction_status_terminal_select_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_terminal_select_failed" id="dropdown_payment_transactpro_transaction_status_terminal_select_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_terminal_select_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_declined_by_br_action"><span data-toggle="tooltip" title="{{ transaction_status_declined_by_br_action_help }}">{{ transaction_status_declined_by_br_action_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_declined_by_br_action" id="dropdown_payment_transactpro_transaction_status_declined_by_br_action" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_declined_by_br_action %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_waiting_card_form_fill"><span data-toggle="tooltip" title="{{ transaction_status_waiting_card_form_fill_help }}">{{ transaction_status_waiting_card_form_fill_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_waiting_card_form_fill" id="dropdown_payment_transactpro_transaction_status_waiting_card_form_fill" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_waiting_card_form_fill %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_mpi_url_generated"><span data-toggle="tooltip" title="{{ transaction_status_mpi_url_generated_help }}">{{ transaction_status_mpi_url_generated_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_mpi_url_generated" id="dropdown_payment_transactpro_transaction_status_mpi_url_generated" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_mpi_url_generated %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_waiting_mpi"><span data-toggle="tooltip" title="{{ transaction_status_waiting_mpi_help }}">{{ transaction_status_waiting_mpi_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_waiting_mpi" id="dropdown_payment_transactpro_transaction_status_waiting_mpi" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_waiting_mpi %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_mpi_failed"><span data-toggle="tooltip" title="{{ transaction_status_mpi_failed_help }}">{{ transaction_status_mpi_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_mpi_failed" id="dropdown_payment_transactpro_transaction_status_mpi_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_mpi_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_mpi_not_reachable"><span data-toggle="tooltip" title="{{ transaction_status_mpi_not_reachable_help }}">{{ transaction_status_mpi_not_reachable_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_mpi_not_reachable" id="dropdown_payment_transactpro_transaction_status_mpi_not_reachable" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_mpi_not_reachable %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_inside_form_url_sent"><span data-toggle="tooltip" title="{{ transaction_status_inside_form_url_sent_help }}">{{ transaction_status_inside_form_url_sent_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_inside_form_url_sent" id="dropdown_payment_transactpro_transaction_status_inside_form_url_sent" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_inside_form_url_sent %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_mpi_auth_failed"><span data-toggle="tooltip" title="{{ transaction_status_mpi_auth_failed_help }}">{{ transaction_status_mpi_auth_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_mpi_auth_failed" id="dropdown_payment_transactpro_transaction_status_mpi_auth_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_mpi_auth_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_acquirer_not_reachable"><span data-toggle="tooltip" title="{{ transaction_status_acquirer_not_reachable_help }}">{{ transaction_status_acquirer_not_reachable_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_acquirer_not_reachable" id="dropdown_payment_transactpro_transaction_status_acquirer_not_reachable" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_acquirer_not_reachable %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_reversal_failed"><span data-toggle="tooltip" title="{{ transaction_status_reversal_failed_help }}">{{ transaction_status_reversal_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_reversal_failed" id="dropdown_payment_transactpro_transaction_status_reversal_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_reversal_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_credit_failed"><span data-toggle="tooltip" title="{{ transaction_status_credit_failed_help }}">{{ transaction_status_credit_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_credit_failed" id="dropdown_payment_transactpro_transaction_status_credit_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_credit_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_p2p_failed"><span data-toggle="tooltip" title="{{ transaction_status_p2p_failed_help }}">{{ transaction_status_p2p_failed_label }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select name="payment_transactpro_transaction_status_p2p_failed" id="dropdown_payment_transactpro_transaction_status_p2p_failed" class="form-control">
+                                            {% for order_status in order_statuses %}
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_p2p_failed %} selected {% endif %}>{{ order_status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="tab-pane" id="tab-transaction">
+                            <div id="transaction-alert" data-message="{{ text_loading }}"></div>
+                            <div class="text-right margin-bottom">
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-left hidden-xs">{{ column_transaction_id }}</th> 
+                                            <th class="text-left">{{ column_customer }}</th>
+                                            <th class="text-left hidden-xs">{{ column_order_id }}</th>
+                                            <th class="text-left hidden-xs">{{ column_type }}</th>
+                                            <th class="text-left hidden-xs">{{ column_amount }}</th>
+                                            <th class="text-left hidden-xs">{{ column_status }}</th>
+                                            <th class="text-left hidden-xs">{{ column_refunds }}</th>
+                                            <th class="text-left hidden-xs hidden-sm">{{ column_ip }}</th>
+                                            <th class="text-left">{{ column_date_created }}</th>
+                                            <th class="text-right">{{ column_action }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactions">
+                                    </tbody>
+                                </table>
+                                <div id="transactions_pagination"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab-cron">
+                            <fieldset>
+                                <legend>{{ text_executables }}</legend>
+                                <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_recurring_info }}</div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label"><span data-toggle="tooltip" data-original-title="{{ help_local_cron }}">{{ text_local_cron }}</span></label>
+                                    <div class="col-sm-10">
+                                        <input disabled type="text" class="form-control" value="{{ payment_transactpro_cron_command }}" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label"><span data-toggle="tooltip" data-original-title="{{ help_remote_cron }}">{{ text_remote_cron }}</span></label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <input disabled type="text" name="payment_transactpro_cron_uri" id="input_payment_transactpro_cron_uri" class="form-control" value="" />
+                                            <div data-toggle="tooltip" data-original-title="{{ text_refresh_token }}" class="input-group-addon btn btn-primary" id="refresh-cron-token">
+                                                <i class="fa fa-refresh"></i>
+                                            </div>
+                                        </div>
+                                        <input id="input_payment_transactpro_cron_token" type="hidden" name="payment_transactpro_cron_token" value="{{ payment_transactpro_cron_token }}" />
+                                    </div>
+                                </div>
+                                <div class="form-group required">
+                                    <label class="col-sm-2 control-label" for="checkbox_payment_transactpro_cron_acknowledge">{{ entry_setup_confirmation }}</label>
+                                    <div class="col-sm-10">
+                                        <label class="checkbox-inline">
+                                            <input id="checkbox_payment_transactpro_cron_acknowledge" type="checkbox" value="1" {% if payment_transactpro_cron_acknowledge %} checked {% endif %} name="payment_transactpro_cron_acknowledge" /> {{ text_acknowledge_cron }}
+                                        </label>
+
+                                        {% if error_cron_acknowledge %}
+                                            <div class="text-danger">{{ error_cron_acknowledge }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend>{{ text_admin_notifications }}</legend>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2" for="dropdown_payment_transactpro_cron_email_status"><span data-toggle="tooltip" data-original-title="{{ help_cron_email_status }}">{{ text_cron_email_status }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select id="dropdown_payment_transactpro_cron_email_status" name="payment_transactpro_cron_email_status" class="form-control">
+                                            <option value="1" {% if payment_transactpro_cron_email_status == '1' %} selected {% endif %}>{{ text_enabled }}</option>
+                                            <option value="0" {% if payment_transactpro_cron_email_status == '0' %} selected {% endif %}>{{ text_disabled }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group required">
+                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_cron_email"><span data-toggle="tooltip" data-original-title="{{ help_cron_email }}">{{ text_cron_email }}</span></label>
+                                    <div class="col-sm-10">
+                                        <input id="input_payment_transactpro_cron_email" name="payment_transactpro_cron_email" type="text" class="form-control" value="{{ payment_transactpro_cron_email }}"/>
+                                        {% if error_cron_email %}
+                                            <div class="text-danger">{{ error_cron_email }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="tab-pane" id="tab-recurring">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="dropdown_payment_transactpro_recurring_status"><span data-toggle="tooltip" data-original-title="{{ help_recurring_status }}">{{ text_recurring_status }}</span></label>
+                                <div class="col-sm-10">
+                                    <select id="dropdown_payment_transactpro_recurring_status" name="payment_transactpro_recurring_status" class="form-control">
+                                        <option value="1" {% if payment_transactpro_recurring_status == '1' %} selected {% endif %}>{{ text_enabled }}</option>
+                                        <option value="0" {% if payment_transactpro_recurring_status == '0' %} selected {% endif %}>{{ text_disabled }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <fieldset>
+                                <legend>{{ text_customer_notifications }}</legend>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2" for="dropdown_payment_transactpro_notify_recurring_success"><span data-toggle="tooltip" data-original-title="{{ help_notify_recurring_success }}">{{ text_notify_recurring_success }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select id="dropdown_payment_transactpro_notify_recurring_success" name="payment_transactpro_notify_recurring_success" class="form-control">
+                                            <option value="1" {% if payment_transactpro_notify_recurring_success == '1' %} selected {% endif %}>{{ text_enabled }}</option>
+                                            <option value="0" {% if payment_transactpro_notify_recurring_success == '0' %} selected {% endif %}>{{ text_disabled }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2" for="dropdown_payment_transactpro_notify_recurring_fail"><span data-toggle="tooltip" data-original-title="{{ help_notify_recurring_fail }}">{{ text_notify_recurring_fail }}</span></label>
+                                    <div class="col-sm-10">
+                                        <select id="dropdown_payment_transactpro_notify_recurring_fail" name="payment_transactpro_notify_recurring_fail" class="form-control">
+                                            <option value="1" {% if payment_transactpro_notify_recurring_fail == '1' %} selected {% endif %}>{{ text_enabled }}</option>
+                                            <option value="0" {% if payment_transactpro_notify_recurring_fail == '0' %} selected {% endif %}>{{ text_disabled }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="transactpro-confirm-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">{{ heading_confirm_action }}</h4>
+                </div>
+                <div class="modal-body">
+                    <h4 id="transactpro-confirm-modal-content"></h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+                    <button id="transactpro-confirm-ok" type="button" class="btn btn-primary">{{ button_ok }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="transactpro-refund-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">{{ heading_refund_details }}</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label" id="transactpro-refund-modal-content-reason"></label>
+                        <textarea class="form-control" id="transactpro-refund-reason" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" id="transactpro-refund-modal-content-amount"></label>
+                        <input class="form-control" type="text" id="transactpro-refund-amount" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+                    <button id="transactpro-refund-ok" type="button" class="btn btn-primary">{{ button_ok }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+    var setCronUrl = function() {
+        $('#input_payment_transactpro_cron_uri').val(
+            '{{ payment_transactpro_cron_uri }}'.replace('{CRON_TOKEN}', $('#input_payment_transactpro_cron_token').val())
+        );
+    }
+
+    var randomString = function() {
+        return (Math.random() * 100).toString(16).replace('.', '');
+    }
+
+    var listTransactions = function(page) {
+        $.ajax({
+          url : '{{ url_list_transactions }}'.replace('{PAGE}', page ? page : transactionListPage),
+          dataType : 'json',
+          beforeSend : function() {
+            $('#refresh_transactions').button('loading');
+            $('#transactions_pagination').empty();
+            $('#transactions').html('<tr><td colspan="9" class="text-center"><i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;{{ text_loading }}</td></tr>');
+          },
+          success : function(data) {
+            var html = '';
+
+            if (data.transactions.length) {
+              for (var i in data.transactions) {
+                var row = data.transactions[i];
+
+                html += '<tr>';
+                html += '<td class="text-left hidden-xs">' + row.transaction_guid + '</td>';
+                html += '<td class="text-left hidden-xs">' + row.customer + '</td>';
+                html += '<td class="text-left"><a target="_blank" href="' + row.url_order + '">' + row.order_id + '</td>';
+                html += '<td class="text-left hidden-xs">' + row.type + '</td>';
+                html += '<td class="text-left hidden-xs">' + row.amount + '</td>';
+                html += '<td class="text-left hidden-xs">' + row.status + '</td>';
+                html += '<td class="text-left hidden-xs">' + row.num_refunds + '</td>';
+                html += '<td class="text-left hidden-xs hidden-sm">' + row.ip + '</td>';
+                html += '<td class="text-left">' + row.date_created + '</td>';
+                html += '<td class="text-right">';
+
+                if (row.can_refund) {
+                  html += '<a class="btn btn-danger" data-url-transaction-refund="' + row.url_refund + '" data-confirm-refund="' + row.confirm_refund + '" data-insert-amount="' + row.insert_amount + '">{{ button_refund }}</a> ';
+                } 
+
+                if (row.can_charge) {
+                  html += '<a class="btn btn-success" data-url-transaction-charge="' + row.url_charge + '" data-confirm-charge="' + row.confirm_charge + '">{{ button_charge }}</a> ';
+                }
+
+                if (row.can_cancel) {
+                  html += '<a class="btn btn-warning" data-url-transaction-cancel="' + row.url_cancel + '" data-confirm-cancel="' + row.confirm_cancel + '">{{ button_cancel }}</a> ';
+                }
+
+                html += ' <a class="btn btn-info" href="' + row.url_info + '">{{ button_info }}</a>';
+                html += '</td>';
+                html += '</tr>';
+              }
+            } else {
+              html += '<tr>';
+              html += '<td class="text-center" colspan="9">{{ text_no_transactions }}</td>';
+              html += '</tr>';
+            }
+
+            $('#transactions').html(html);
+            
+            $('#transactions_pagination').html(data.pagination).find('a[href]').each(function(index,element) {
+              $(this).click(function(e) {
+                e.preventDefault();
+
+                transactionListPage = isNaN($(this).attr('href')) ? 1 : $(this).attr('href');
+
+                listTransactions();
+              })
+            });
+          },
+          complete : function() {
+            $('#refresh_transactions').button('reset');
+          }
+        });
+    }
+
+    var transactionLoading = function() {
+        var message = $('#transaction-alert').attr('data-message');
+
+        $('#transaction-alert').html('<div class="text-center alert alert-info"><i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;' + message + '</div>');
+    }
+
+    var transactionError = function(message) {
+        $('#transaction-alert').html('<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="X"><span aria-hidden="true">&times;</span></button><i class="fa fa-exclamation-circle"></i>&nbsp;' + message + '</div>');
+    }
+
+    var transactionSuccess = function(message) {
+        $('#transaction-alert').html('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="X"><span aria-hidden="true">&times;</span></button><i class="fa fa-exclamation-circle"></i>&nbsp;' + message + '</div>');
+    }
+
+    var addOrderHistory = function(data, success_callback) {
+        $.ajax({
+            url: '{{ catalog }}index.php?route=api/order/history&api_token={{ api_token }}&order_id=' + data.order_id,
+            type: 'post',
+            dataType: 'json',
+            data: data,
+            success: function(json) {
+                if (json['error']) {
+                    transactionError(json['error']);
+                    enableTransactionButtons();
+                }
+
+                if (json['success']) {
+                    success_callback();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                transactionError(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                enableTransactionButtons();
+            }
+        });
+    }
+
+    var transactionRequest = function(type, url, data) {
+        $.ajax({
+            url : url,
+            dataType : 'json',
+            type : type,
+            data : data,
+            beforeSend : transactionLoading,
+            success : function(json) {
+                if (json.error) {
+                    transactionError(json.error);
+                    enableTransactionButtons();
+                }
+
+                if (json.success && json.order_history_data) {
+                    addOrderHistory(json.order_history_data, function() {
+                        transactionSuccess(json.success);
+                        listTransactions();
+                    });
+                }
+            },
+            error : function(xhr, ajaxSettings, thrownError) {
+                transactionError(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                enableTransactionButtons();
+            }
+        });
+    }
+
+    var disableTransactionButtons = function() {
+        $('*[data-url-transaction-charge], *[data-url-transaction-cancel], *[data-url-transaction-refund]').attr('disabled', true);
+    }
+
+    var enableTransactionButtons = function() {
+        $('*[data-url-transaction-charge], *[data-url-transaction-cancel], *[data-url-transaction-refund]').attr('disabled', false);
+    }
+
+    var modalConfirm = function(url, text) {
+        var modal = '#transactpro-confirm-modal';
+        var content = '#transactpro-confirm-modal-content';
+        var button = '#transactpro-confirm-ok';
+
+        $(content).html(text);
+        $(button).unbind().click(function() {
+            disableTransactionButtons();
+
+            $(modal).modal('hide');
+
+            transactionRequest('GET', url);
+        });
+        
+        $(modal).modal('show');
+    }
+
+    var refundInputValidate = function(reason_input, amount_input) {
+        var result = true;
+
+        if (!$(reason_input)[0].checkValidity()) {
+            $(reason_input).closest('.form-group').addClass('has-error');
+            result = false;
+        } else {
+            $(reason_input).closest('.form-group').removeClass('has-error');
+        }
+
+        if (!$(amount_input)[0].checkValidity()) {
+            $(amount_input).closest('.form-group').addClass('has-error');
+            result = false;
+        } else {
+            $(amount_input).closest('.form-group').removeClass('has-error');
+        }
+
+        return result;
+    }
+
+    var modalRefund = function(url, text_reason, text_amount) {
+        var modal = '#transactpro-refund-modal';
+        var content_reason = '#transactpro-refund-modal-content-reason';
+        var content_amount = '#transactpro-refund-modal-content-amount';
+        var button = '#transactpro-refund-ok';
+        var reason_input = '#transactpro-refund-reason';
+        var amount_input = '#transactpro-refund-amount';
+
+        $(content_reason).html(text_reason);
+        $(content_amount).html(text_amount);
+
+        $(reason_input).val('');
+        $(amount_input).val('');
+
+        $(button).unbind().click(function() {
+            if (!refundInputValidate(reason_input, amount_input)) {
+                return;
+            }
+
+            disableTransactionButtons();
+
+            $(modal).modal('hide');
+
+            transactionRequest('POST', url, {
+                reason : $(reason_input).val(),
+                amount : $(amount_input).val()
+            });
+        });
+        
+        $(modal).modal('show');
+    }
+
+    var transactionListPage = 1;
+
+    $('.nav-tabs a[href="#{{ tab }}"]').tab('show');
+
+    $('#refresh-cron-token').click(function() {
+        $('#input_payment_transactpro_cron_token').val(randomString() + randomString());
+        setCronUrl();
+    });
+
+    $(document).on('click', '*[data-url-transaction-charge]', function() {
+        if ($(this).attr('disabled')) return;
+
+        modalConfirm(
+            $(this).attr('data-url-transaction-charge'),
+            $(this).attr('data-confirm-charge')
+        );
+    });
+        
+    $(document).on('click', '*[data-url-transaction-cancel]', function() {
+        if ($(this).attr('disabled')) return;
+
+        modalConfirm(
+            $(this).attr('data-url-transaction-cancel'),
+            $(this).attr('data-confirm-cancel')
+        );
+    });
+
+    $(document).on('click', '*[data-url-transaction-refund]', function() {
+        if ($(this).attr('disabled')) return;
+
+        modalRefund(
+            $(this).attr('data-url-transaction-refund'),
+            $(this).attr('data-confirm-refund'),
+            $(this).attr('data-insert-amount')
+        );
+    });
+    
+    setCronUrl();
+
+    listTransactions();
+});
+</script>
+{{ footer }}

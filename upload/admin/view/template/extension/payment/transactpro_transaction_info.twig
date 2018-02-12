@@ -1,0 +1,322 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        {% if can_charge %}
+            <a id="transaction_charge" data-url-transaction-charge="{{ url_charge }}" data-confirm-charge="{{ confirm_charge }}" class="btn btn-success">{{ button_charge }}</a>
+        {% endif %}
+
+        {% if can_cancel %}
+            <a id="transaction_cancel" data-url-transaction-cancel="{{ url_cancel }}" data-confirm-cancel="{{ confirm_cancel }}" class="btn btn-warning">{{ button_cancel }}</a>
+        {% endif %}
+        
+        {% if can_refund %}
+            <a id="transaction_refund" data-url-transaction-refund="{{ url_refund }}" data-confirm-refund="{{ confirm_refund }}" data-insert-amount="{{ insert_amount }}" class="btn btn-danger">{{ button_refund }}</a>
+        {% endif %}
+        
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div id="transaction-alert" data-message="{{ text_loading }}">
+        {% for alert in alerts %}
+            <div class="alert alert-{{ alert.type }}"><i class="fa fa-{{ alert.icon }}"></i>&nbsp;{{ alert.text }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-info-circle"></i>&nbsp;{{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ label_transaction_id }}</label>
+                <div class="col-sm-10">
+                    <div class="form-control-static">{{ transaction_id }}</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ label_order_id }}</label>
+                <div class="col-sm-10">
+                    <div class="form-control-static"><a href="{{ url_order }}" target="_blank">{{ order_id }}</a></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ label_type }}</label>
+                <div class="col-sm-10">
+                    <div class="form-control-static">{{ type }}</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ label_status }}</label>
+                <div class="col-sm-10">
+                    <div class="form-control-static">{{ status }}</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ label_amount }}</label>
+                <div class="col-sm-10">
+                    <div class="form-control-static">{{ amount }}</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ label_ip }}</label>
+                <div class="col-sm-10">
+                    <div class="form-control-static">{{ ip }}</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ label_date_created }}</label>
+                <div class="col-sm-10">
+                    <div class="form-control-static">{{ date_created }}</div>
+                </div>
+            </div>
+            {% if has_refunds %}
+                <hr />
+                <h3>{{ heading_refunds }}</h3>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <th>{{ column_transaction_id }}</th>
+                        <th>{{ column_date_created }}</th>
+                        <th>{{ column_reason }}</th>
+                        <th>{{ column_status }}</th>
+                        <th>{{ column_amount }}</th>
+                    </thead>
+                    <tbody>
+                        {% for refund in refunds %}
+                            <tr>
+                                <td>{{ refund.transaction_id }}</th>
+                                <td>{{ refund.date_created }}</td>
+                                <td>{{ refund.reason }}</td>
+                                <td>{{ refund.status }}</td>
+                                <td>{{ refund.amount }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="transactpro-confirm-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">{{ heading_confirm_action }}</h4>
+            </div>
+            <div class="modal-body">
+                <h4 id="transactpro-confirm-modal-content"></h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+                <button id="transactpro-confirm-ok" type="button" class="btn btn-primary">{{ button_ok }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="transactpro-refund-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">{{ heading_refund_details }}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="control-label" id="transactpro-refund-modal-content-reason"></label>
+                    <textarea class="form-control" id="transactpro-refund-reason" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" id="transactpro-refund-modal-content-amount"></label>
+                    <input class="form-control" type="text" id="transactpro-refund-amount" required />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close }}</button>
+                <button id="transactpro-refund-ok" type="button" class="btn btn-primary">{{ button_ok }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+    var transactionLoading = function() {
+        var message = $('#transaction-alert').attr('data-message');
+
+        $('#transaction-alert').html('<div class="text-center alert alert-info"><i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;' + message + '</div>');
+    }
+
+    var refreshPage = function() {
+        document.location = document.location;
+    }
+
+    var transactionError = function(message) {
+        $('#transaction-alert').html('<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="X"><span aria-hidden="true">&times;</span></button><i class="fa fa-exclamation-circle"></i>&nbsp;' + message + '</div>');
+    }
+
+    var addOrderHistory = function(data, success_callback) {
+        $.ajax({
+            url: '{{ catalog }}index.php?route=api/order/history&api_token={{ api_token }}&order_id=' + data.order_id,
+            type: 'post',
+            dataType: 'json',
+            data: data,
+            success: function(json) {
+                if (json['error']) {
+                    refreshPage();
+                }
+
+                if (json['success']) {
+                    success_callback();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                transactionError(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                enableTransactionButtons();
+            }
+        });
+    }
+
+    var transactionRequest = function(type, url, data) {
+        $.ajax({
+            url : url,
+            dataType : 'json',
+            type : type,
+            data : data,
+            beforeSend : transactionLoading,
+            success : function(json) {
+                if (json.error) {
+                    refreshPage();
+                }
+
+                if (json.success && json.order_history_data) {
+                    addOrderHistory(json.order_history_data, function() {
+                        refreshPage();
+                    });
+                }
+            },
+            error : function(xhr, ajaxSettings, thrownError) {
+                transactionError(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                enableTransactionButtons();
+            }
+        });
+    }
+
+    var disableTransactionButtons = function() {
+        $('*[data-url-transaction-charge], *[data-url-transaction-cancel], *[data-url-transaction-refund]').attr('disabled', true);
+    }
+
+    var enableTransactionButtons = function() {
+        $('*[data-url-transaction-charge], *[data-url-transaction-cancel], *[data-url-transaction-refund]').attr('disabled', false);
+    }
+
+    var modalConfirm = function(url, text) {
+        var modal = '#transactpro-confirm-modal';
+        var content = '#transactpro-confirm-modal-content';
+        var button = '#transactpro-confirm-ok';
+
+        $(content).html(text);
+        $(button).unbind().click(function() {
+            disableTransactionButtons();
+
+            $(modal).modal('hide');
+
+            transactionRequest('GET', url);
+        });
+        
+        $(modal).modal('show');
+    }
+
+    var refundInputValidate = function(reason_input, amount_input) {
+        var result = true;
+
+        if (!$(reason_input)[0].checkValidity()) {
+            $(reason_input).closest('.form-group').addClass('has-error');
+            result = false;
+        } else {
+            $(reason_input).closest('.form-group').removeClass('has-error');
+        }
+
+        if (!$(amount_input)[0].checkValidity()) {
+            $(amount_input).closest('.form-group').addClass('has-error');
+            result = false;
+        } else {
+            $(amount_input).closest('.form-group').removeClass('has-error');
+        }
+
+        return result;
+    }
+
+    var modalRefund = function(url, text_reason, text_amount) {
+        var modal = '#transactpro-refund-modal';
+        var content_reason = '#transactpro-refund-modal-content-reason';
+        var content_amount = '#transactpro-refund-modal-content-amount';
+        var button = '#transactpro-refund-ok';
+        var reason_input = '#transactpro-refund-reason';
+        var amount_input = '#transactpro-refund-amount';
+
+        $(content_reason).html(text_reason);
+        $(content_amount).html(text_amount);
+
+        $(reason_input).val('');
+        $(amount_input).val('');
+
+        $(button).unbind().click(function() {
+            if (!refundInputValidate(reason_input, amount_input)) {
+                return;
+            }
+
+            disableTransactionButtons();
+
+            $(modal).modal('hide');
+
+            transactionRequest('POST', url, {
+                reason : $(reason_input).val(),
+                amount : $(amount_input).val()
+            });
+        });
+        
+        $(modal).modal('show');
+    }
+
+    $(document).on('click', '*[data-url-transaction-charge]', function() {
+        if ($(this).attr('disabled')) return;
+
+        modalConfirm(
+            $(this).attr('data-url-transaction-charge'),
+            $(this).attr('data-confirm-charge')
+        );
+    });
+        
+    $(document).on('click', '*[data-url-transaction-cancel]', function() {
+        if ($(this).attr('disabled')) return;
+
+        modalConfirm(
+            $(this).attr('data-url-transaction-cancel'),
+            $(this).attr('data-confirm-cancel')
+        );
+    });
+
+    $(document).on('click', '*[data-url-transaction-refund]', function() {
+        if ($(this).attr('disabled')) return;
+
+        modalRefund(
+            $(this).attr('data-url-transaction-refund'),
+            $(this).attr('data-confirm-refund'),
+            $(this).attr('data-insert-amount')
+        );
+    });
+});
+</script>
+{{ footer }} 
