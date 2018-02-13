@@ -18,9 +18,6 @@ class ControllerExtensionPaymentTransactpro extends Controller
 
     public function checkout()
     {
-// 	$this->document->addScript('/catalog/view/javascript/jquery/card/jquery.card.js');
-// 	$this->document->addStyle('/catalog/view/javascript/jquery/card/card.css');
-
         $this->load->language('extension/payment/transactpro');
         
         $this->load->model('extension/payment/transactpro');
@@ -111,9 +108,9 @@ class ControllerExtensionPaymentTransactpro extends Controller
                 
                 $user_ip = $this->request->server['REMOTE_ADDR'];
 
-                $pan = isset($this->request->post['card_number']) ? $this->request->post['card_number'] : ' ';
-                $card_exp = isset($this->request->post['card_expiry']) ? $this->request->post['card_expiry'] : ' ';
-                $cvv = isset($this->request->post['card_cvv']) ? $this->request->post['card_cvv'] : ' ';
+                $pan = isset($this->request->post['card_number']) ? str_replace(' ', '', $this->request->post['card_number']) : ' ';
+                $card_exp = isset($this->request->post['card_expiry']) ? str_replace(' ', '', $this->request->post['card_expiry']) : ' ';
+                $cvv = isset($this->request->post['card_cvv']) ? str_replace(' ', '', $this->request->post['card_cvv']) : ' ';
                 $cardholder_name = isset($this->request->post['card_cardholder_name']) ? $this->request->post['card_cardholder_name'] : ' ';
                 
                 try {
