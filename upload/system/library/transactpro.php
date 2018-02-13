@@ -381,7 +381,7 @@ class Transactpro
             $json['error'] = $json['error']['message'];
         }
 
-        if (empty($json['error']) {
+        if (empty($json['error'])) {
             unset($json['error']);
         }
         

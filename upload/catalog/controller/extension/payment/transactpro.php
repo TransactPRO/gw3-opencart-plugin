@@ -18,6 +18,9 @@ class ControllerExtensionPaymentTransactpro extends Controller
 
     public function checkout()
     {
+// 	$this->document->addScript('/catalog/view/javascript/jquery/card/jquery.card.js');
+// 	$this->document->addStyle('/catalog/view/javascript/jquery/card/card.css');
+
         $this->load->language('extension/payment/transactpro');
         
         $this->load->model('extension/payment/transactpro');
