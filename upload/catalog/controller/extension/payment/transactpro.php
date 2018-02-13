@@ -163,7 +163,6 @@ class ControllerExtensionPaymentTransactpro extends Controller
                     }
                     
                     if (empty($json['error'])) {
-                        unset($json['error']);
                         $json['redirect'] = $this->url->link('checkout/success', '', true);
                     }
                     

@@ -380,6 +380,10 @@ class Transactpro
         } elseif (isset($json['error']['message'])) {
             $json['error'] = $json['error']['message'];
         }
+
+        if (empty($json['error']) {
+            unset($json['error']);
+        }
         
         return $json;
     }
