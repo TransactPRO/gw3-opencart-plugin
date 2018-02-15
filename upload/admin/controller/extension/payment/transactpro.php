@@ -19,7 +19,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
 
         foreach ($previous_setting as $key => $value) {
             $previous_config->set($key, $value);
-        }        
+        }
 
         if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
             $this->model_setting_setting->editSetting('payment_transactpro', array_merge($previous_setting, $this->request->post));
@@ -33,7 +33,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
         $data['display_name_error']                 = $this->getValidationError('display_name');
         $data['account_id_error']                   = $this->getValidationError('account_id');
         $data['secret_key_error']                   = $this->getValidationError('secret_key');
-        
+
 
         $data['payment_transactpro_status']                    = $this->getSettingValue('payment_transactpro_status');
         $data['payment_transactpro_display_name']              = $this->getSettingValue('payment_transactpro_display_name');
@@ -49,7 +49,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
         $url = new Url(HTTP_CATALOG, $this->config->get('config_secure') ? HTTP_CATALOG : HTTPS_CATALOG);
         $data['payment_transactpro_callback_uri'] = $url->link('extension/payment/transactpro/callback', '', false);
         $data['payment_transactpro_redirect_uri'] = $url->link('extension/payment/transactpro/redirect', '', false);
-        
+
         $data['payment_transactpro_transaction_status_init']                         = $this->getSettingValue('payment_transactpro_transaction_status_init');
         $data['payment_transactpro_transaction_status_sent_to_bank']                 = $this->getSettingValue('payment_transactpro_transaction_status_sent_to_bank');
         $data['payment_transactpro_transaction_status_hold_ok']                      = $this->getSettingValue('payment_transactpro_transaction_status_hold_ok');
@@ -81,7 +81,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
         $data['payment_transactpro_transaction_status_reversal_failed']              = $this->getSettingValue('payment_transactpro_transaction_status_reversal_failed');
         $data['payment_transactpro_transaction_status_credit_failed']                = $this->getSettingValue('payment_transactpro_transaction_status_credit_failed');
         $data['payment_transactpro_transaction_status_p2p_failed']                   = $this->getSettingValue('payment_transactpro_transaction_status_p2p_failed');
-        
+
 
         if (isset($this->error['warning'])) {
             $this->pushAlert(array(
@@ -157,7 +157,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
         $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
 
         $data['payment_transactpro_cron_command'] = PHP_BINDIR . '/php -d session.save_path=' . session_save_path() . ' ' . DIR_SYSTEM . 'library/transactpro/cron.php ' . parse_url($server, PHP_URL_HOST) . ' 443 > /dev/null 2> /dev/null';
-        
+
         if (!$this->config->get('payment_transactpro_cron_token')) {
             $data['payment_transactpro_cron_token'] = md5(mt_rand());
         }
@@ -192,12 +192,12 @@ class ControllerExtensionPaymentTransactpro extends Controller {
 
         $this->response->setOutput($this->load->view('extension/payment/transactpro', $data));
     }
-    
+
     public function transactions() {
         $this->load->language('extension/payment/transactpro');
 
         $this->load->model('extension/payment/transactpro');
-        
+
         $this->load->library('transactpro');
 
         if (isset($this->request->get['page'])) {
@@ -229,7 +229,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
             $amount = $this->currency->format($transaction['transaction_amount'], $transaction['transaction_currency']);
 
             $order_info = $this->model_sale_order->getOrder($transaction['order_id']);
-            
+
             $result['transactions'][] = array(
                 'transaction_id' => $transaction['transaction_id'],
                 'transaction_guid' => $transaction['transaction_guid'],
@@ -240,9 +240,9 @@ class ControllerExtensionPaymentTransactpro extends Controller {
                 'confirm_charge' => sprintf($this->language->get('label_confirm_charge'), $amount),
                 'confirm_cancel' => sprintf($this->language->get('label_confirm_cancel'), $amount),
                 'confirm_refund' => $this->language->get('label_confirm_refund'),
-                'can_charge' => $this->transactpro->canCharge($transaction['transaction_status']), 
-                'can_cancel' => $this->transactpro->canCancel($transaction['transaction_status']) || $this->transactpro->canReverse($transaction['transaction_status']),
-                'can_refund' => $this->transactpro->canRefund($transaction['transaction_status']),
+                'can_charge' => $this->transactpro->canChargeTransaction($transaction['payment_method'], $transaction['transaction_status']),
+                'can_cancel' => $this->transactpro->canCancelTransaction($transaction['payment_method'], $transaction['transaction_status']) || $this->transactpro->canReverseTransaction($transaction['payment_method'], $transaction['transaction_status']),
+                'can_refund' => $this->transactpro->canRefundTransaction($transaction['payment_method'], $transaction['transaction_status']),
                 'insert_amount' => sprintf($this->language->get('label_insert_amount'), $amount, $transaction['transaction_currency']),
                 'order_id' => $transaction['order_id'],
                 'type' => $this->transactpro->getPaymentMethodName($transaction['payment_method']),
@@ -270,39 +270,39 @@ class ControllerExtensionPaymentTransactpro extends Controller {
 
     public function transaction_info() {
         $this->load->language('extension/payment/transactpro');
-        
+
         $this->load->model('extension/payment/transactpro');
-        
+
         $this->load->library('transactpro');
-        
+
         if (isset($this->request->get['transaction_id'])) {
             $transaction_id = $this->request->get['transaction_id'];
         } else {
             $transaction_id = 0;
         }
-        
+
         $transaction_info = $this->model_extension_payment_transactpro->getTransaction($transaction_id);
-        
+
         if (empty($transaction_info)) {
             $this->response->redirect($this->url->link('extension/payment/transactpro', 'user_token=' . $this->session->data['user_token'], true));
         }
-        
+
         $this->document->setTitle(sprintf($this->language->get('heading_title_transaction'), $transaction_info['transaction_id']));
-        
+
         $data['alerts'] = $this->pullAlerts();
-        
+
         $this->clearAlerts();
-        
+
         $data['text_edit'] = sprintf($this->language->get('heading_title_transaction'), $transaction_info['transaction_id']);
-        
+
         $amount = $this->currency->format($transaction_info['transaction_amount'], $transaction_info['transaction_currency']);
-        
+
         $data['confirm_charge'] = sprintf($this->language->get('label_confirm_charge'), $amount);
         $data['confirm_cancel'] = sprintf($this->language->get('label_confirm_cancel'), $amount);
         $data['confirm_refund'] = $this->language->get('label_confirm_refund');
         $data['insert_amount'] = sprintf($this->language->get('label_insert_amount'), $amount, $transaction_info['transaction_currency']);
         $data['text_loading'] = $this->language->get('text_loading_short');
-        
+
         $data['transaction_id'] = $transaction_info['transaction_guid'];
         $data['order_id'] = $transaction_info['order_id'];
         $data['type'] = $this->transactpro->getPaymentMethodName($transaction_info['payment_method']);
@@ -311,30 +311,30 @@ class ControllerExtensionPaymentTransactpro extends Controller {
         $data['status'] = $this->transactpro->getTransactionStatusName($transaction_info['transaction_status']);
         $data['ip'] = $transaction_info['device_ip'];
         $data['date_created'] = date($this->language->get('datetime_format'), strtotime($transaction_info['created_at']));
-        
+
         $data['cancel'] = $this->url->link('extension/payment/transactpro', 'user_token=' . $this->session->data['user_token'] . '&tab=tab-transaction', true);
-        
+
         $data['url_order'] = $this->url->link('sale/order/info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $transaction_info['order_id'], true);
         $data['url_charge'] = $this->url->link('extension/payment/transactpro' . '/charge', 'user_token=' . $this->session->data['user_token'] . '&preserve_alert=true&transaction_id=' . $transaction_info['transaction_id'], true);
         $data['url_cancel'] = $this->url->link('extension/payment/transactpro' . '/cancel', 'user_token=' . $this->session->data['user_token'] . '&preserve_alert=true&transaction_id=' . $transaction_info['transaction_id'], true);
         $data['url_refund'] = $this->url->link('extension/payment/transactpro' . '/refund', 'user_token=' . $this->session->data['user_token'] . '&preserve_alert=true&transaction_id=' . $transaction_info['transaction_id'], true);
-        
-        $data['can_charge'] = $this->transactpro->canCharge($transaction_info['transaction_status']);
-        $data['can_cancel'] = $this->transactpro->canCancel($transaction_info['transaction_status']) || $this->transactpro->canReverse($transaction_info['transaction_status']);
-        $data['can_refund'] = $this->transactpro->canRefund($transaction_info['transaction_status']);
-        
+
+        $data['can_charge'] = $this->transactpro->canChargeTransaction($transaction['payment_method'], $transaction_info['transaction_status']);
+        $data['can_cancel'] = $this->transactpro->canCancelTransaction($transaction['payment_method'], $transaction_info['transaction_status']) || $this->transactpro->canReverseTransaction($transaction['payment_method'], $transaction_info['transaction_status']);
+        $data['can_refund'] = $this->transactpro->canRefundTransaction($transaction['payment_method'], $transaction_info['transaction_status']);
+
         $data['has_refunds'] = (bool)$transaction_info['is_refunded'];
-        
+
         if ($data['has_refunds']) {
             $refunds = @json_decode($transaction_info['refunds'], true);
-            
+
             $data['refunds'] = array();
-            
+
             $data['heading_refunds'] = sprintf($this->language->get('heading_refunds'), count($refunds));
-            
+
             foreach ($refunds as $refund) {
                 $amount = $this->currency->format($refund['amount'], $transaction_info['transaction_currency']);
-                
+
                 $data['refunds'][] = array(
                     'transaction_id' => $refund['transaction_guid'],
                     'date_created' => date($this->language->get('datetime_format'), strtotime($refund['created_at'])),
@@ -344,56 +344,56 @@ class ControllerExtensionPaymentTransactpro extends Controller {
                 );
             }
         }
-        
+
         $data['breadcrumbs'] = array();
-        
+
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_home'),
             'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
         );
-        
+
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_extension'),
             'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true)
         );
-        
+
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('heading_title'),
             'href' => $this->url->link('extension/payment/transactpro', 'user_token=' . $this->session->data['user_token'], true)
         );
-        
+
         $data['breadcrumbs'][] = array(
             'text' => sprintf($this->language->get('heading_title_transaction'), $transaction_info['transaction_id']),
             'href' => $this->url->link('extension/payment/transactpro/transaction_info', 'user_token=' . $this->session->data['user_token'] . '&transaction_id=' . $transaction_id, true)
         );
-        
+
         $data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
-        
+
         // API login
         $this->load->model('user/api');
-        
+
         $api_info = $this->model_user_api->getApi($this->config->get('config_api_id'));
-        
+
         if ($api_info && $this->user->hasPermission('modify', 'sale/order')) {
             $session = new Session($this->config->get('session_engine'), $this->registry);
-            
+
             $session->start();
-            
+
             $this->model_user_api->deleteApiSessionBySessonId($session->getId());
-            
+
             $this->model_user_api->addApiSession($api_info['api_id'], $session->getId(), $this->request->server['REMOTE_ADDR']);
-            
+
             $session->data['api_id'] = $api_info['api_id'];
-            
+
             $data['api_token'] = $session->getId();
         } else {
             $data['api_token'] = '';
         }
-        
+
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
-        
+
         $this->response->setOutput($this->load->view('extension/payment/transactpro_transaction_info', $data));
     }
 
@@ -405,10 +405,10 @@ class ControllerExtensionPaymentTransactpro extends Controller {
             } else {
                 $reason = $this->language->get('error_no_reason_provided');
             }
-            
+
             if (! empty($this->request->post['amount'])) {
                 $amount = preg_replace('~[^0-9\.\,]~', '', $this->request->post['amount']);
-                
+
                 if (strpos($amount, ',') !== FALSE && strpos($amount, '.') !== FALSE) {
                     $amount = (float) str_replace(',', '', $amount);
                 } else if (strpos($amount, ',') !== FALSE && strpos($amount, '.') === FALSE) {
@@ -419,20 +419,20 @@ class ControllerExtensionPaymentTransactpro extends Controller {
             } else {
                 $amount = 0;
             }
-            
+
             $refund_amount = $this->transactpro->lowestDenomination($amount, $transaction_info['transaction_currency']);
             try {
                 $json = $this->transactpro->refundTransaction($transaction_info['transaction_guid'], $refund_amount);
-                
+
                 $refund_transaction_guid = $json['gw']['gateway-transaction-id'];
                 $refund_transaction_status = $json['gw']['status-code'];
-                
+
                 $refunds = array();
-                
+
                 if (! empty($transaction_info['refunds'])) {
                     $refunds = json_decode($transaction_info['refunds'], true);
                 }
-                
+
                 $refunds[] = array(
                     'transaction_guid' => $refund_transaction_guid,
                     'transaction_status' => $refund_transaction_status,
@@ -440,21 +440,21 @@ class ControllerExtensionPaymentTransactpro extends Controller {
                     'reason' => $reason,
                     'created_at' => date('Y-m-d H:i:s')
                 );
-                
+
                 $this->model_extension_payment_transactpro->updateTransactionRefunds($transaction_info['transaction_id'], $refunds);
-                
+
                 if (Transactpro::STATUS_REFUND_SUCCESS == $refund_transaction_status) {
                     $refunded_amount = $this->currency->format($amount, $transaction_info['transaction_currency']);
                     $status_name = $this->transactpro->getTransactionStatusName($refund_transaction_status);
                     $comment = sprintf($this->language->get('text_refunded_amount'), $refunded_amount, $status_name, $reason);
-                    
+
                     $json['order_history_data'] = array(
                         'notify' => 1,
                         'order_id' => $transaction_info['order_id'],
                         'order_status_id' => $this->model_extension_payment_transactpro->getOrderStatusId($transaction_info['order_id']),
                         'comment' => $comment
                     );
-                    
+
                     $json['success'] = $this->language->get('text_success_refund');
                 } else {
                     $json['error'] = $this->language->get('error_no_refund');
@@ -478,17 +478,17 @@ class ControllerExtensionPaymentTransactpro extends Controller {
                 $transaction_status = $json['gw']['status-code'];
                 $status_name = $this->transactpro->getTransactionStatusName($transaction_status);
                 $comment = $this->language->get('transaction_status_' . strtolower($status_name) . '_help');
-                
+
                 if (Transactpro::STATUS_REVERSED == $transaction_status || Transactpro::STATUS_DMS_CANCEL_OK == $transaction_status) {
                     $this->model_extension_payment_transactpro->updateTransactionStatus($transaction_info['transaction_id'], $transaction_status);
-                    
+
                     $json['order_history_data'] = array(
                         'notify' => 1,
                         'order_id' => $transaction_info['order_id'],
                         'order_status_id' => $this->model_extension_payment_transactpro->getOrderStatusId($transaction_info['order_id'], $transaction_status),
                         'comment' => $comment
                     );
-                    
+
                     $json['success'] = $this->language->get('text_success_cancel');
                 } else {
                     $json['error'] = $comment;
@@ -505,21 +505,21 @@ class ControllerExtensionPaymentTransactpro extends Controller {
             $charge_amount = $this->transactpro->lowestDenomination($transaction_info['transaction_amount'], $transaction_info['transaction_currency']);
             try {
                 $json = $this->transactpro->chargeDmsHoldTransaction($transaction_info['transaction_guid'], $charge_amount);
-                
+
                 $transaction_status = $json['gw']['status-code'];
                 $status_name = $this->transactpro->getTransactionStatusName($transaction_status);
                 $comment = $this->language->get('transaction_status_' . strtolower($status_name) . '_help');
-                
+
                 if (Transactpro::STATUS_SUCCESS == $transaction_status) {
                     $this->model_extension_payment_transactpro->updateTransactionStatus($transaction_info['transaction_id'], $transaction_status);
-                    
+
                     $json['order_history_data'] = array(
                         'notify' => 1,
                         'order_id' => $transaction_info['order_id'],
                         'order_status_id' => $this->model_extension_payment_transactpro->getOrderStatusId($transaction_info['order_id'], $transaction_status),
                         'comment' => $comment
                     );
-                    
+
                     $charged_amount = $this->currency->format($transaction_info['transaction_amount'], $transaction_info['transaction_currency']);
                     $json['success'] = sprintf($this->language->get('text_charged_amount'), $charged_amount, $status_name);
                 } else {
@@ -530,7 +530,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
             }
         });
     }
-       
+
     public function order() {
         $this->load->language('extension/payment/transactpro');
 
@@ -547,13 +547,13 @@ class ControllerExtensionPaymentTransactpro extends Controller {
 
         if ($api_info && $this->user->hasPermission('modify', 'sale/order')) {
             $session = new Session($this->config->get('session_engine'), $this->registry);
-            
+
             $session->start();
-                    
+
             $this->model_user_api->deleteApiSessionBySessonId($session->getId());
-            
+
             $this->model_user_api->addApiSession($api_info['api_id'], $session->getId(), $this->request->server['REMOTE_ADDR']);
-            
+
             $session->data['api_id'] = $api_info['api_id'];
 
             $data['api_token'] = $session->getId();
@@ -566,7 +566,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
 
     public function install() {
         $this->load->model('extension/payment/transactpro');
-        
+
         $this->model_extension_payment_transactpro->createTables();
     }
 
@@ -620,13 +620,13 @@ class ControllerExtensionPaymentTransactpro extends Controller {
 
         if ($api_info && $this->user->hasPermission('modify', 'sale/order')) {
             $session = new Session($this->config->get('session_engine'), $this->registry);
-            
+
             $session->start();
-                    
+
             $this->model_user_api->deleteApiSessionBySessonId($session->getId());
-            
+
             $this->model_user_api->addApiSession($api_info['api_id'], $session->getId(), $this->request->server['REMOTE_ADDR']);
-            
+
             $session->data['api_id'] = $api_info['api_id'];
 
             $data['api_token'] = $session->getId();
@@ -643,18 +643,18 @@ class ControllerExtensionPaymentTransactpro extends Controller {
         $this->load->language('extension/payment/transactpro');
 
         $json = array();
-        
+
         if (!$this->user->hasPermission('modify', 'sale/recurring')) {
             $json['error'] = $this->language->get('error_permission_recurring');
         } else {
             $this->load->model('sale/recurring');
-            
+
             if (isset($this->request->get['order_recurring_id'])) {
                 $order_recurring_id = $this->request->get['order_recurring_id'];
             } else {
                 $order_recurring_id = 0;
             }
-            
+
             $recurring_info = $this->model_sale_recurring->getRecurring($order_recurring_id);
 
             if ($recurring_info) {
@@ -663,7 +663,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
                 $this->model_extension_payment_transactpro->editOrderRecurringStatus($order_recurring_id, ModelExtensionPaymenttransactpro::RECURRING_CANCELLED);
 
                 $json['success'] = $this->language->get('text_canceled_success');
-                
+
             } else {
                 $json['error'] = $this->language->get('error_not_found');
             }
@@ -772,7 +772,7 @@ class ControllerExtensionPaymentTransactpro extends Controller {
         }
 
         if (isset($this->request->post[$key])) {
-            return $this->request->post[$key]; 
+            return $this->request->post[$key];
         } else if ($this->config->has($key)) {
             return $this->config->get($key);
         } else {
