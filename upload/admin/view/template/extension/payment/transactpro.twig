@@ -111,10 +111,9 @@
                                     <div class="col-sm-10">
                                         <select name="payment_transactpro_payment_method" id="dropdown_payment_transactpro_payment_method" class="form-control">
                                             <option value="1" {% if payment_transactpro_payment_method == 1 %} selected {% endif %}>{{ payment_method_entry_sms }}</option>
-                                            <option value="2" {% if payment_transactpro_payment_method == 2 %} selected {% endif %}>{{ payment_method_entry_dms_charge }}</option>
-                                            <option value="3" {% if payment_transactpro_payment_method == 3 %} selected {% endif %}>{{ payment_method_entry_dms_hold }}</option>
-                                            <option value="4" {% if payment_transactpro_payment_method == 4 %} selected {% endif %}>{{ payment_method_entry_credit }}</option>
-                                            <option value="5" {% if payment_transactpro_payment_method == 5 %} selected {% endif %}>{{ payment_method_entry_p2p }}</option>
+                                            <option value="2" {% if payment_transactpro_payment_method == 2 %} selected {% endif %}>{{ payment_method_entry_dms }}</option>
+                                            <option value="3" {% if payment_transactpro_payment_method == 3 %} selected {% endif %}>{{ payment_method_entry_credit }}</option>
+                                            <option value="4" {% if payment_transactpro_payment_method == 4 %} selected {% endif %}>{{ payment_method_entry_p2p }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -495,20 +494,20 @@
                         </div>
                         <div class="tab-pane" id="tab-cron">
                             <fieldset>
-                                <legend>{{ text_executables }}</legend>
+                                <legend>{{ heading_cron }}</legend>
                                 <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_recurring_info }}</div>
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label"><span data-toggle="tooltip" data-original-title="{{ help_local_cron }}">{{ text_local_cron }}</span></label>
+                                    <label class="col-sm-2 control-label"><span data-toggle="tooltip" data-original-title="{{ local_cron_help }}">{{ local_cron_label }}</span></label>
                                     <div class="col-sm-10">
                                         <input disabled type="text" class="form-control" value="{{ payment_transactpro_cron_command }}" />
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label"><span data-toggle="tooltip" data-original-title="{{ help_remote_cron }}">{{ text_remote_cron }}</span></label>
+                                    <label class="col-sm-2 control-label"><span data-toggle="tooltip" data-original-title="{{ remote_cron_help }}">{{ remote_cron_label }}</span></label>
                                     <div class="col-sm-10">
                                         <div class="input-group">
                                             <input disabled type="text" name="payment_transactpro_cron_uri" id="input_payment_transactpro_cron_uri" class="form-control" value="" />
-                                            <div data-toggle="tooltip" data-original-title="{{ text_refresh_token }}" class="input-group-addon btn btn-primary" id="refresh-cron-token">
+                                            <div data-toggle="tooltip" data-original-title="{{ refresh_token_help }}" class="input-group-addon btn btn-primary" id="refresh-cron-token">
                                                 <i class="fa fa-refresh"></i>
                                             </div>
                                         </div>
@@ -516,22 +515,22 @@
                                     </div>
                                 </div>
                                 <div class="form-group required">
-                                    <label class="col-sm-2 control-label" for="checkbox_payment_transactpro_cron_acknowledge">{{ entry_setup_confirmation }}</label>
+                                    <label class="col-sm-2 control-label" for="checkbox_payment_transactpro_cron_acknowledge">{{ setup_confirmation_label }}</label>
                                     <div class="col-sm-10">
                                         <label class="checkbox-inline">
-                                            <input id="checkbox_payment_transactpro_cron_acknowledge" type="checkbox" value="1" {% if payment_transactpro_cron_acknowledge %} checked {% endif %} name="payment_transactpro_cron_acknowledge" /> {{ text_acknowledge_cron }}
+                                            <input id="checkbox_payment_transactpro_cron_acknowledge" type="checkbox" value="1" {% if payment_transactpro_cron_acknowledge %} checked {% endif %} name="payment_transactpro_cron_acknowledge" /> {{ setup_confirmation_entry }}
                                         </label>
 
-                                        {% if error_cron_acknowledge %}
-                                            <div class="text-danger">{{ error_cron_acknowledge }}</div>
+                                        {% if setup_confirmation_error %}
+                                            <div class="text-danger">{{ setup_confirmation_error }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
                             </fieldset>
                             <fieldset>
-                                <legend>{{ text_admin_notifications }}</legend>
+                                <legend>{{ heading_admin_notifications }}</legend>
                                 <div class="form-group">
-                                    <label class="control-label col-sm-2" for="dropdown_payment_transactpro_cron_email_status"><span data-toggle="tooltip" data-original-title="{{ help_cron_email_status }}">{{ text_cron_email_status }}</span></label>
+                                    <label class="control-label col-sm-2" for="dropdown_payment_transactpro_cron_email_status"><span data-toggle="tooltip" data-original-title="{{ cron_email_status_help }}">{{ cron_email_status_label }}</span></label>
                                     <div class="col-sm-10">
                                         <select id="dropdown_payment_transactpro_cron_email_status" name="payment_transactpro_cron_email_status" class="form-control">
                                             <option value="1" {% if payment_transactpro_cron_email_status == '1' %} selected {% endif %}>{{ text_enabled }}</option>
@@ -540,11 +539,11 @@
                                     </div>
                                 </div>
                                 <div class="form-group required">
-                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_cron_email"><span data-toggle="tooltip" data-original-title="{{ help_cron_email }}">{{ text_cron_email }}</span></label>
+                                    <label class="col-sm-2 control-label" for="input_payment_transactpro_cron_email"><span data-toggle="tooltip" data-original-title="{{ cron_email_help }}">{{ cron_email_label }}</span></label>
                                     <div class="col-sm-10">
                                         <input id="input_payment_transactpro_cron_email" name="payment_transactpro_cron_email" type="text" class="form-control" value="{{ payment_transactpro_cron_email }}"/>
-                                        {% if error_cron_email %}
-                                            <div class="text-danger">{{ error_cron_email }}</div>
+                                        {% if cron_email_error %}
+                                            <div class="text-danger">{{ cron_email_error }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -552,7 +551,7 @@
                         </div>
                         <div class="tab-pane" id="tab-recurring">
                             <div class="form-group">
-                                <label class="control-label col-sm-2" for="dropdown_payment_transactpro_recurring_status"><span data-toggle="tooltip" data-original-title="{{ help_recurring_status }}">{{ text_recurring_status }}</span></label>
+                                <label class="control-label col-sm-2" for="dropdown_payment_transactpro_recurring_status"><span data-toggle="tooltip" data-original-title="{{ recurring_status_help }}">{{ recurring_status_label }}</span></label>
                                 <div class="col-sm-10">
                                     <select id="dropdown_payment_transactpro_recurring_status" name="payment_transactpro_recurring_status" class="form-control">
                                         <option value="1" {% if payment_transactpro_recurring_status == '1' %} selected {% endif %}>{{ text_enabled }}</option>
@@ -561,9 +560,9 @@
                                 </div>
                             </div>
                             <fieldset>
-                                <legend>{{ text_customer_notifications }}</legend>
+                                <legend>{{ heding_customer_notifications }}</legend>
                                 <div class="form-group">
-                                    <label class="control-label col-sm-2" for="dropdown_payment_transactpro_notify_recurring_success"><span data-toggle="tooltip" data-original-title="{{ help_notify_recurring_success }}">{{ text_notify_recurring_success }}</span></label>
+                                    <label class="control-label col-sm-2" for="dropdown_payment_transactpro_notify_recurring_success"><span data-toggle="tooltip" data-original-title="{{ notify_recurring_success_help }}">{{ notify_recurring_success_label }}</span></label>
                                     <div class="col-sm-10">
                                         <select id="dropdown_payment_transactpro_notify_recurring_success" name="payment_transactpro_notify_recurring_success" class="form-control">
                                             <option value="1" {% if payment_transactpro_notify_recurring_success == '1' %} selected {% endif %}>{{ text_enabled }}</option>
@@ -572,7 +571,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-sm-2" for="dropdown_payment_transactpro_notify_recurring_fail"><span data-toggle="tooltip" data-original-title="{{ help_notify_recurring_fail }}">{{ text_notify_recurring_fail }}</span></label>
+                                    <label class="control-label col-sm-2" for="dropdown_payment_transactpro_notify_recurring_fail"><span data-toggle="tooltip" data-original-title="{{ notify_recurring_fail_help }}">{{ notify_recurring_fail_label }}</span></label>
                                     <div class="col-sm-10">
                                         <select id="dropdown_payment_transactpro_notify_recurring_fail" name="payment_transactpro_notify_recurring_fail" class="form-control">
                                             <option value="1" {% if payment_transactpro_notify_recurring_fail == '1' %} selected {% endif %}>{{ text_enabled }}</option>

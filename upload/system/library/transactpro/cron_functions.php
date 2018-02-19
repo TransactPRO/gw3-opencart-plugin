@@ -2,7 +2,7 @@
 
 function transactpro_validate() {
     if (php_sapi_name() != 'cli') {
-        die("Not in Command Line.");
+        die('Not in Command Line.');
     }
 }
 
@@ -28,16 +28,16 @@ function transactpro_init($current_dir) {
 
     // Set up default server vars
     if (isset($argc) && isset($argv) && $argc >= 3) {
-        $_SERVER["HTTP_HOST"] = $argv[1];
-        $_SERVER["SERVER_NAME"] = $argv[1];
-        $_SERVER["SERVER_PORT"] = $argv[2];
+        $_SERVER['HTTP_HOST'] = $argv[1];
+        $_SERVER['SERVER_NAME'] = $argv[1];
+        $_SERVER['SERVER_PORT'] = $argv[2];
     } else {
-        $_SERVER["HTTP_HOST"] = "localhost";
-        $_SERVER["SERVER_NAME"] = "localhost";
-        $_SERVER["SERVER_PORT"] = 80;
+        $_SERVER['HTTP_HOST'] = 'localhost';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['SERVER_PORT'] = 80;
     }
 
-    putenv("SERVER_NAME=" . $_SERVER["SERVER_NAME"]);
+    putenv('SERVER_NAME=' . $_SERVER['SERVER_NAME']);
 
     // Change root dir
     $root_dir = transactpro_chdir($current_dir);

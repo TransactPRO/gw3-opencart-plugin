@@ -1,6 +1,5 @@
 <?php
 
-// Heading
 $_['heading_title']                                     = 'Transact Pro';
 $_['heading_settings']                                  = 'Settings';
 $_['heading_transaction_statuses']                      = 'Transaction Statuses';
@@ -8,16 +7,15 @@ $_['heading_title_transaction']                         = 'View Transaction #%s'
 $_['heading_confirm_action']                            = 'Are you sure?';
 $_['heading_refund_details']                            = 'Refund details';
 $_['heading_refunds']                                   = 'Refunds (%s)';
+$_['heading_cron']                                      = 'CRON execution methods';
+$_['heading_admin_notifications']                       = 'Admin notifications';
+$_['heding_customer_notifications']                     = 'Customer notifications';
 
-
-
-// Tab
 $_['tab_setting']                                       = 'Settings';
 $_['tab_transaction']                                   = 'Transactions';
 $_['tab_cron']                                          = 'CRON';
 $_['tab_recurring']                                     = 'Recurring Payments';
 
-// Entry
 $_['extension_status_label']                            = 'Extension status';
 $_['extension_status_entry_enabled']                    = 'Enabled';
 $_['extension_status_entry_disabled']                   = 'Disabled';
@@ -49,8 +47,7 @@ $_['secret_key_error']                                  = 'The Secret Key is a r
 
 $_['payment_method_label']                              = 'Payment Method';
 $_['payment_method_entry_sms']                          = 'SMS';
-$_['payment_method_entry_dms_charge']                   = 'DMS Charge';
-$_['payment_method_entry_dms_hold']                     = 'DMS Hold';
+$_['payment_method_entry_dms']                          = 'DMS';
 $_['payment_method_entry_credit']                       = 'Credit';
 $_['payment_method_entry_p2p']                          = 'P2P';
 
@@ -66,6 +63,34 @@ $_['geo_zone_label']                                    = 'Geo Zone';
 
 $_['sort_order_label']                                  = 'Sort Order';
 $_['sort_order_entry']                                  = 'Sort Order';
+
+$_['local_cron_label']                                  = 'Method #1 - CRON Task:';
+$_['local_cron_help']                                   = 'Insert this command in your web server CRON tab. Set it up to run at least once per day.';
+
+$_['remote_cron_label']                                 = 'Method #2 - Remote CRON:';
+$_['remote_cron_help']                                  = 'Use this URL to set up a CRON task via a web-based CRON service. Set it up to run at least once per day.';
+
+$_['refresh_token_help']                                = 'Re-create token';
+
+$_['setup_confirmation_label']                          = 'Setup confirmation:';
+$_['setup_confirmation_entry']                          = 'I confirm that I have set up an automated CRON task using one of the methods above.';
+$_['setup_confirmation_error']                          = 'Please confirm you have set up a CRON job.';
+
+$_['cron_email_status_label']                           = 'Send e-mail summary:';
+$_['cron_email_status_help']                            = 'Enable to receive a summary after every CRON task.';
+
+$_['cron_email_label']                                  = 'Send task summary to this e-mail:';
+$_['cron_email_help']                                   = 'A summary of the recurring task will be sent to this e-mail after completion.';
+$_['cron_email_error']                                  = 'The provided e-mail address is not valid!';
+
+$_['recurring_status_label']                            = 'Status of recurring payments:';
+$_['recurring_status_help']                             = 'Enable to receive a summary after every CRON task.';
+
+$_['notify_recurring_success_label']                     = 'Recurring Transaction Successful:';
+$_['notify_recurring_success_help']                     = 'Notify customers about successful recurring transactions.';
+
+$_['notify_recurring_fail_label']                        = 'Recurring Transaction Failed:';
+$_['notify_recurring_fail_help']                        = 'Notify customers about failed recurring transactions.';
 
 $_['transaction_status_init_label'] =                         'INIT';
 $_['transaction_status_sent_to_bank_label'] =                 'SENT_TO_BANK';
@@ -131,25 +156,28 @@ $_['transaction_status_reversal_failed_help'] =               'Failed to reverse
 $_['transaction_status_credit_failed_help'] =                 'Failed to process credit transaction.';
 $_['transaction_status_p2p_failed_help'] =                    'Failed to process P2P transaction.';
 
-// Error
 $_['error_permission']                                  = '<strong>Warning:</strong> You do not have permission to modify payment Transact Pro!';
 $_['error_permission_recurring']                        = '<strong>Warning:</strong> You do not have permission to modify recurring payments!';
 $_['error_form']                                        = 'Please check the form for errors and try to save agian.';
 $_['error_no_reason_provided']                          = 'Reason not provided.';
 $_['error_no_refund']                                   = 'Refund failed.';
 
-// Text
 $_['text_transactpro']                                  = '<a target="_BLANK" href="https://transactpro.lv"><img src="view/image/payment/transactpro.png" alt="Transact Pro" title="Transact Pro" style="border: 1px solid #EEEEEE;" /></a>';
 $_['text_success']                                      = 'Success: You have modified Transact Pro payment module!';
 $_['text_extension']                                    = 'Extensions';
+$_['text_loading']                                      = 'Loading data... Please wait...';
 $_['text_loading_short']                                = 'Please wait...';
 $_['text_success_refund']                               = 'Transaction successfully refunded!';
 $_['text_success_cancel']                               = 'Transaction successfully canceled / reversed!';
 $_['text_refunded_amount']                              = 'Refunded: %s. Status of the refund: %s. Reason for the refund: %s';
 $_['text_charged_amount']                               = 'Charged: %s. Status of the charge %s.';
 $_['text_no_transactions']                              = 'No transactions have been logged yet.';
+$_['text_recurring_info']                               = 'Please make sure to set up a daily CRON task using one of the methods below. CRON jobs help you with processing of recurring transactions.';
+$_['text_order_history_cancel']                         = 'An administrator has canceled your recurring payments. Your card will no longer be charged.';
+$_['text_confirm_recurring_cancel']                     = 'Are you sure you want to cancel the recurring payments?';
+$_['text_order_history_cancel']                         = 'An administrator has canceled your recurring payments. Your card will no longer be charged.';
+$_['text_canceled_success']                             = 'Success: You have succesfully canceled this payment!';
 
-// Column
 $_['column_transaction_id']                             = 'Transaction ID';
 $_['column_order_id']                                   = 'Order ID';
 $_['column_customer']                                   = 'Customer';
@@ -163,16 +191,14 @@ $_['column_refunds']                                    = 'Refunds';
 $_['column_reason']                                     = 'Reason';
 $_['column_fee']                                        = 'Processing Fee';
 
-// Button
 $_['button_cancel']                                     = 'Cancel';
 $_['button_refund']                                     = 'Refund';
 $_['button_charge']                                     = 'Charge';
 $_['button_info']                                       = 'Info';
 $_['button_ok']                                         = 'OK';
 $_['button_close']                                      = 'Close';
+$_['button_cancel_recurring']                           = 'Cancel Recurring';
 
-
-// Label
 $_['label_transaction_id']                              = 'Transaction ID';
 $_['label_order_id']                                    = 'Order ID';
 $_['label_type']                                        = 'Transaction Type';
@@ -187,7 +213,4 @@ $_['label_confirm_charge']                              = 'You are about to char
 $_['label_confirm_refund']                              = 'Please provide a reason for the refund:';
 $_['label_confirm_cancel']                              = 'You are about to cancel / revrese the following amount: <strong>%s</strong>. Click OK to proceed.';
 $_['label_insert_amount']                               = 'Please insert the refund amount. Maximum: %s in %s:';
-
-
-
 

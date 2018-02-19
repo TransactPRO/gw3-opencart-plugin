@@ -1,19 +1,26 @@
 <?php
 
 class ModelExtensionPaymentTransactpro extends Model {
-        
+
+    const RECURRING_ACTIVE = 1;
+    const RECURRING_INACTIVE = 2;
+    const RECURRING_CANCELLED = 3;
+    const RECURRING_SUSPENDED = 4;
+    const RECURRING_EXPIRED = 5;
+    const RECURRING_PENDING = 6;
+
     public function getTransaction($transaction_id) {
         return $this->db->query("SELECT * FROM `" . DB_PREFIX . "transactpro_transaction` WHERE transaction_id='" . (int)$transaction_id . "'")->row;
     }
-    
+
     public function getTransactions($filters) {
         $sql = "SELECT * FROM `" . DB_PREFIX . "transactpro_transaction` WHERE 1";
 
-        
+
         if (isset($filters['transaction_guid'])) {
             $sql .= " AND transaction_guid='" . (int)$filters['order_id'] . "'";
         }
-        
+
         if (isset($filters['order_id'])) {
             $sql .= " AND order_id='" . (int)$filters['order_id'] . "'";
         }
@@ -33,14 +40,14 @@ class ModelExtensionPaymentTransactpro extends Model {
         if (isset($filters['transaction_guid'])) {
             $sql .= " AND transaction_guid='" . (int)$filters['order_id'] . "'";
         }
-        
+
         if (isset($filters['order_id'])) {
             $sql .= " AND order_id='" . (int)$filters['order_id'] . "'";
         }
 
         return $this->db->query($sql)->row['total'];
     }
-    
+
     public function updateTransactionRefunds($transaction_id, $refunds)
     {
         $this->db->query("UPDATE `" . DB_PREFIX . "transactpro_transaction` SET is_refunded='1', refunded_at=NOW(), refunds='" . $this->db->escape(json_encode($refunds)) . "' WHERE transaction_id='" . (int) $transaction_id . "'");
@@ -50,11 +57,11 @@ class ModelExtensionPaymentTransactpro extends Model {
     {
         $this->db->query("UPDATE `" . DB_PREFIX . "transactpro_transaction` SET transaction_status='" . (int) $transaction_status . "' WHERE transaction_id='" . (int) $transaction_id . "'");
     }
-    
+
     public function getOrderStatusId($order_id, $transaction_status = null) {
         if ($transaction_status) {
             $this->load->library('transactpro');
-            
+
             $status_name = $this->transactpro->getTransactionStatusName($transaction_status);
             return $this->config->get('payment_transactpro_transaction_status_' . strtolower($status_name));
         } else {
@@ -88,7 +95,7 @@ class ModelExtensionPaymentTransactpro extends Model {
           KEY `order_id` (`order_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
     }
-    
+
     public function dropTables() {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "transactpro_transaction`");
     }

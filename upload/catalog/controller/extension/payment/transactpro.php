@@ -48,8 +48,11 @@ class ControllerExtensionPaymentTransactpro extends Controller
             $json['error'] = $error_message;
         } else {
             $payment_method = $this->config->get('payment_transactpro_payment_method');
+            if ($this->cart->hasRecurringProducts() > 0) {
+                $payment_method = $this->transactpro->getInitRecurrentMethod($payment_method);
+            }
 
-            if ($this->cart->hasRecurringProducts() > 0 && ! $this->transactpro->isRecurrentMethod($payment_method)) {
+            if (FALSE == $payment_method) {
                 $json['error'] = $this->language->get('error_recurring_not_supported');
             } else {
                 $this->load->model('checkout/order');
@@ -114,12 +117,11 @@ class ControllerExtensionPaymentTransactpro extends Controller
                 $cardholder_name = isset($this->request->post['card_cardholder_name']) ? $this->request->post['card_cardholder_name'] : ' ';
 
                 try {
-                    $json = $this->transactpro->createTransaction($customer_email, $customer_phone, $billing_address_country, $billing_address_state, $billing_address_city, $billing_address_street, $billing_address_house, $billing_address_flat, $billing_address_zip, $shipping_address_country, $shipping_address_state, $shipping_address_city, $shipping_address_street, $shipping_address_house, $shipping_address_flat, $shipping_address_zip, $amount, $currency, $order_id, $merchant_url, $user_ip, $pan, $card_exp, $cvv, $cardholder_name, $payment_method);
+                    $json = $this->transactpro->createTransaction($payment_method, $customer_email, $customer_phone, $billing_address_country, $billing_address_state, $billing_address_city, $billing_address_street, $billing_address_house, $billing_address_flat, $billing_address_zip, $shipping_address_country, $shipping_address_state, $shipping_address_city, $shipping_address_street, $shipping_address_house, $shipping_address_flat, $shipping_address_zip, $amount, $currency, $order_id, $merchant_url, $user_ip, $pan, $card_exp, $cvv, $cardholder_name);
 
                     $transaction_guid = $json['gw']['gateway-transaction-id'];
                     $this->session->data['transaction_guid'] = $transaction_guid;
                     $transaction_status = $json['gw']['status-code'];
-
                     $this->model_extension_payment_transactpro->addTransaction($transaction_guid, $transaction_status, $payment_method, $amount, $currency, $order_id, $user_ip);
 
                     $transaction_status_name = $this->transactpro->getTransactionStatusName($transaction_status);
@@ -153,7 +155,7 @@ class ControllerExtensionPaymentTransactpro extends Controller
                                     $item['recurring']['trial_duration'] = 0;
                                 }
 
-                                $this->model_extension_payment_transactpro->createRecurring($item, $this->session->data['order_id'], $recurring_description, $transaction['id']);
+                                $this->model_extension_payment_transactpro->createRecurringOrder($item, $this->session->data['order_id'], $recurring_description, $transaction_guid);
                             }
                         }
 
@@ -187,7 +189,7 @@ class ControllerExtensionPaymentTransactpro extends Controller
             $json_status = json_last_error();
             if (JSON_ERROR_NONE == $json_status && isset($json['result-data']['gw']['gateway-transaction-id']) && isset($json['result-data']['gw']['status-code'])) {
                 $transaction_guid = $json['result-data']['gw']['gateway-transaction-id'];
-                $transaction_status = $json['result-data']['gw']['status-code'];
+                $transaction_status = (int)$json['result-data']['gw']['status-code'];
 
                 $this->load->model('extension/payment/transactpro');
                 $this->load->model('checkout/order');
@@ -196,7 +198,7 @@ class ControllerExtensionPaymentTransactpro extends Controller
                     'transaction_guid' => $transaction_guid
                 ));
 
-                if (!empty($transactions)) {
+                if (! empty($transactions)) {
                     $this->model_extension_payment_transactpro->updateTransactionStatus($transactions[0]['transaction_id'], $transaction_status);
 
                     $transaction_status_name = $this->transactpro->getTransactionStatusName($transaction_status);
@@ -204,7 +206,7 @@ class ControllerExtensionPaymentTransactpro extends Controller
                     $order_status_comment = $this->language->get('transaction_status_' . strtolower($transaction_status_name) . '_comment');
 
                     $this->model_checkout_order->addOrderHistory($transactions[0]['order_id'], $order_status_id, $order_status_comment, true);
-               }
+                }
             }
         }
     }
@@ -224,7 +226,7 @@ class ControllerExtensionPaymentTransactpro extends Controller
             ));
         }
 
-        if (!empty($transaction_guid) && !empty($transactions) && $this->transactpro->isSuccessTransaction($transactions[0]['payment_method'], $transactions[0]['transaction_status'])) {
+        if (! empty($transaction_guid) && ! empty($transactions) && $this->transactpro->isSuccessTransaction($transactions[0]['payment_method'], $transactions[0]['transaction_status'])) {
             $this->response->redirect($this->url->link('checkout/success', '', true));
         } else {
             $this->response->redirect($this->url->link('checkout/failure', '', true));

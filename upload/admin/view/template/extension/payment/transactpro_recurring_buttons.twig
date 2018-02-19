@@ -1,7 +1,7 @@
 <div id="transactpro_buttons" class="form-control-static buttons clearfix">
   {% if order_recurring_id %}
   <div class="pull-right">
-    <button type="button" id="button-cancel" data-loading-text="{{ text_loading }}" class="btn btn-danger">{{ button_text }}</button>
+    <button type="button" id="button-cancel" data-loading-text="{{ text_loading }}" class="btn btn-danger">{{ button_cancel_recurring }}</button>
   </div>
   {% endif %}
 </div>
@@ -29,12 +29,12 @@ $(document).ready(function() {
     }
 
     $(document).delegate('#button-cancel', 'click', function() {
-        if (!confirm("{{ text_confirm_cancel }}")) {
+        if (!confirm("{{ text_confirm_recurring_cancel }}")) {
             return false;
         }
 
         $.ajax({
-            url: '{{ cancel }}',
+            url: '{{ url_stop }}',
             dataType: 'json',
             beforeSend: function() {
                 $('#button-cancel').button('loading');

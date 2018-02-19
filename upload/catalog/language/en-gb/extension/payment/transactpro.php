@@ -7,7 +7,16 @@ $_['text_loading']                      = 'Loading... Please wait...';
 $_['text_trial']                        = '%s every %s %s for %s payments then ';
 $_['text_recurring']                    = '%s every %s %s';
 $_['text_length']                       = ' for %s payments';
-
+$_['text_recurring_profile_suspended']  = ' Your recurring payments have been suspended. Please contact us for more details.';
+$_['text_recurring_trial_expired']      = ' Your trial period has expired.';
+$_['text_recurring_expired']            = ' Your recurring payments have expired. This was your last payment.';
+$_['text_cron_subject']                 = 'Square CRON job summary';
+$_['text_cron_message']                 = 'Here is a list of all CRON tasks performed by your Square extension:';
+$_['text_cron_summary_error_heading']   = 'Transaction Errors:';
+$_['text_cron_summary_fail_heading']    = 'Failed Transactions (Profiles Suspended):';
+$_['text_cron_summary_success_heading'] = 'Successful Transactions:';
+$_['text_cron_fail_charge']             = 'Profile <strong>#%s</strong> could not get charged with <strong>%s</strong>';
+$_['text_cron_success_charge']          = 'Profile <strong>#%s</strong> was charged with <strong>%s</strong>';
 
 $_['card_number_label']                 = 'Card Number:';
 $_['card_number_entry']                 = 'XXXX XXXX XXXX XXXX';
