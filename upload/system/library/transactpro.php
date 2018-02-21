@@ -4,12 +4,13 @@ class Transactpro
 {
 
     const METHOD_SMS = 1;
-    const METHOD_DMS_CHARGE = 2;
-    const METHOD_DMS_HOLD = 3;
-    const METHOD_CREDIT = 4;
-    const METHOD_P2P = 5;
-    const METHOD_RECURRENT_SMS = 6;
-    const METHOD_RECURRENT_DMS_HOLD = 7;
+    const METHOD_DMS = 2;
+    const METHOD_CREDIT = 3;
+    const METHOD_P2P = 4;
+    const METHOD_INIT_RECURRENT_SMS = 5;
+    const METHOD_INIT_RECURRENT_DMS = 6;
+    const METHOD_RECURRENT_SMS = 7;
+    const METHOD_RECURRENT_DMS = 8;
 
     const STATUS_INIT = 1;
     const STATUS_SENT_TO_BANK = 2;
@@ -42,6 +43,8 @@ class Transactpro
     const STATUS_REVERSAL_FAILED = 33;
     const STATUS_CREDIT_FAILED = 34;
     const STATUS_P2P_FAILED = 35;
+    const STATUS_GATEWAY_ERROR = 99;
+
 
     public function __construct($registry)
     {
@@ -62,37 +65,38 @@ class Transactpro
     public function getTransactionStatusName($transaction_status)
     {
         $status_names = array(
-            self::STATUS_INIT =>'INIT',
-            self::STATUS_SENT_TO_BANK =>'SENT_TO_BANK',
-            self::STATUS_HOLD_OK =>'HOLD_OK',
-            self::STATUS_DMS_HOLD_FAILED =>'DMS_HOLD_FAILED',
-            self::STATUS_SMS_FAILED_SMS =>'SMS_FAILED_SMS',
-            self::STATUS_DMS_CHARGE_FAILED =>'DMS_CHARGE_FAILED',
-            self::STATUS_SUCCESS =>'SUCCESS',
-            self::STATUS_EXPIRED =>'EXPIRED',
-            self::STATUS_HOLD_EXPIRED =>'HOLD_EXPIRED',
-            self::STATUS_REFUND_FAILED =>'REFUND_FAILED',
-            self::STATUS_REFUND_PENDING =>'REFUND_PENDING',
-            self::STATUS_REFUND_SUCCESS =>'REFUND_SUCCESS',
-            self::STATUS_DMS_CANCEL_OK =>'DMS_CANCEL_OK',
-            self::STATUS_DMS_CANCEL_FAILED =>'DMS_CANCEL_FAILED',
-            self::STATUS_REVERSED =>'REVERSED',
-            self::STATUS_INPUT_VALIDATION_FAILED =>'INPUT_VALIDATION_FAILED',
-            self::STATUS_BR_VALIDATION_FAILED =>'BR_VALIDATION_FAILED',
-            self::STATUS_TERMINAL_GROUP_SELECT_FAILED =>'TERMINAL_GROUP_SELECT_FAILED',
-            self::STATUS_TERMINAL_SELECT_FAILED =>'TERMINAL_SELECT_FAILED',
-            self::STATUS_DECLINED_BY_BR_ACTION =>'DECLINED_BY_BR_ACTION',
-            self::STATUS_WAITING_CARD_FORM_FILL =>'WAITING_CARD_FORM_FILL',
-            self::STATUS_MPI_URL_GENERATED =>'MPI_URL_GENERATED',
-            self::STATUS_WAITING_MPI =>'WAITING_MPI',
-            self::STATUS_MPI_FAILED =>'MPI_FAILED',
-            self::STATUS_MPI_NOT_REACHABLE =>'MPI_NOT_REACHABLE',
-            self::STATUS_INSIDE_FORM_URL_SENT =>'INSIDE_FORM_URL_SENT',
-            self::STATUS_MPI_AUTH_FAILED =>'MPI_AUTH_FAILED',
-            self::STATUS_ACQUIRER_NOT_REACHABLE =>'ACQUIRER_NOT_REACHABLE',
-            self::STATUS_REVERSAL_FAILED =>'REVERSAL_FAILED',
-            self::STATUS_CREDIT_FAILED =>'CREDIT_FAILED',
-            self::STATUS_P2P_FAILED =>'P2P_FAILED'
+            self::STATUS_INIT => 'INIT',
+            self::STATUS_SENT_TO_BANK => 'SENT_TO_BANK',
+            self::STATUS_HOLD_OK => 'HOLD_OK',
+            self::STATUS_DMS_HOLD_FAILED => 'DMS_HOLD_FAILED',
+            self::STATUS_SMS_FAILED_SMS => 'SMS_FAILED_SMS',
+            self::STATUS_DMS_CHARGE_FAILED => 'DMS_CHARGE_FAILED',
+            self::STATUS_SUCCESS => 'SUCCESS',
+            self::STATUS_EXPIRED => 'EXPIRED',
+            self::STATUS_HOLD_EXPIRED => 'HOLD_EXPIRED',
+            self::STATUS_REFUND_FAILED => 'REFUND_FAILED',
+            self::STATUS_REFUND_PENDING => 'REFUND_PENDING',
+            self::STATUS_REFUND_SUCCESS => 'REFUND_SUCCESS',
+            self::STATUS_DMS_CANCEL_OK => 'DMS_CANCEL_OK',
+            self::STATUS_DMS_CANCEL_FAILED => 'DMS_CANCEL_FAILED',
+            self::STATUS_REVERSED => 'REVERSED',
+            self::STATUS_INPUT_VALIDATION_FAILED => 'INPUT_VALIDATION_FAILED',
+            self::STATUS_BR_VALIDATION_FAILED => 'BR_VALIDATION_FAILED',
+            self::STATUS_TERMINAL_GROUP_SELECT_FAILED => 'TERMINAL_GROUP_SELECT_FAILED',
+            self::STATUS_TERMINAL_SELECT_FAILED => 'TERMINAL_SELECT_FAILED',
+            self::STATUS_DECLINED_BY_BR_ACTION => 'DECLINED_BY_BR_ACTION',
+            self::STATUS_WAITING_CARD_FORM_FILL => 'WAITING_CARD_FORM_FILL',
+            self::STATUS_MPI_URL_GENERATED => 'MPI_URL_GENERATED',
+            self::STATUS_WAITING_MPI => 'WAITING_MPI',
+            self::STATUS_MPI_FAILED => 'MPI_FAILED',
+            self::STATUS_MPI_NOT_REACHABLE => 'MPI_NOT_REACHABLE',
+            self::STATUS_INSIDE_FORM_URL_SENT => 'INSIDE_FORM_URL_SENT',
+            self::STATUS_MPI_AUTH_FAILED => 'MPI_AUTH_FAILED',
+            self::STATUS_ACQUIRER_NOT_REACHABLE => 'ACQUIRER_NOT_REACHABLE',
+            self::STATUS_REVERSAL_FAILED => 'REVERSAL_FAILED',
+            self::STATUS_CREDIT_FAILED => 'CREDIT_FAILED',
+            self::STATUS_P2P_FAILED => 'P2P_FAILED',
+            self::STATUS_GATEWAY_ERROR => 'GATEWAY_ERROR'
         );
 
         if (array_key_exists($transaction_status, $status_names)) {
@@ -106,12 +110,13 @@ class Transactpro
     {
         $method_names = array(
             self::METHOD_SMS => 'Sms',
-            self::METHOD_DMS_CHARGE => 'DmsCharge',
-            self::METHOD_DMS_HOLD => 'DmsHold',
+            self::METHOD_DMS => 'DmsHold',
             self::METHOD_CREDIT => 'Credit',
             self::METHOD_P2P => 'P2P',
+            self::METHOD_INIT_RECURRENT_SMS => 'InitRecurrentSms',
+            self::METHOD_INIT_RECURRENT_DMS => 'InitRecurrentDms',
             self::METHOD_RECURRENT_SMS => 'RecurrentSms',
-            self::METHOD_RECURRENT_DMS_HOLD => 'RecurrentDms'
+            self::METHOD_RECURRENT_DMS => 'RecurrentDms'
         );
 
         if (array_key_exists($payment_method, $method_names)) {
@@ -123,43 +128,89 @@ class Transactpro
 
     public function canRefundTransaction($payment_method, $transaction_status)
     {
-        return in_array($transaction_status, array(
+        return in_array($payment_method, array(
+            self::METHOD_SMS,
+            self::METHOD_INIT_RECURRENT_SMS,
+            self::METHOD_RECURRENT_SMS
+        )) &&in_array($transaction_status, array(
             self::STATUS_SUCCESS
         ));
     }
 
     public function canChargeTransaction($payment_method, $transaction_status)
     {
-        return in_array($transaction_status, array(
+        return in_array($payment_method, array(
+            self::METHOD_DMS,
+            self::METHOD_INIT_RECURRENT_DMS,
+            self::METHOD_RECURRENT_DMS
+        )) && in_array($transaction_status, array(
             self::STATUS_HOLD_OK
         ));
     }
 
     public function canCancelTransaction($payment_method, $transaction_status)
     {
-        return in_array($transaction_status, array(
+        return in_array($payment_method, array(
+            self::METHOD_DMS,
+            self::METHOD_INIT_RECURRENT_DMS,
+            self::METHOD_RECURRENT_DMS
+        )) && in_array($transaction_status, array(
             self::STATUS_HOLD_OK
         ));
     }
 
-    function canReverseTransaction($payment_method, $transaction_status)
+    public function canReverseTransaction($payment_method, $transaction_status)
     {
-        return in_array($transaction_status, array(
+        return in_array($payment_method, array(
+            self::METHOD_SMS,
+            self::METHOD_INIT_RECURRENT_SMS,
+            self::METHOD_RECURRENT_SMS
+        )) && in_array($transaction_status, array(
             self::STATUS_SUCCESS
         ));
     }
 
-    function isRecurrentMethod($payment_method)
+    public function getInitRecurrentMethod($payment_method)
+    {
+        switch ($payment_method) {
+            case self::METHOD_SMS:
+                return self::METHOD_INIT_RECURRENT_SMS;
+            case self::METHOD_DMS:
+                return self::METHOD_INIT_RECURRENT_DMS;
+            default:
+                return FALSE;
+        }
+    }
+
+    public function getRecurrentMethod($payment_method)
+    {
+        switch ($payment_method) {
+            case self::METHOD_INIT_RECURRENT_SMS:
+                return self::METHOD_RECURRENT_SMS;
+            case self::METHOD_INIT_RECURRENT_DMS:
+                return self::METHOD_RECURRENT_DMS;
+            default:
+                return FALSE;
+        }
+    }
+
+    public function isRecurringMethod($payment_method)
     {
         return in_array($payment_method, array(
+            self::METHOD_INIT_RECURRENT_SMS,
+            self::METHOD_INIT_RECURRENT_DMS,
             self::METHOD_RECURRENT_SMS,
-            self::METHOD_RECURRENT_DMS_HOLD
+            self::METHOD_RECURRENT_DMS
         ));
     }
 
     public function isSuccessTransaction($payment_method, $transaction_status)
     {
-        if (self::METHOD_DMS_HOLD == $payment_method || self::METHOD_RECURRENT_DMS_HOLD == $payment_method) {
+        if (in_array($payment_method, array(
+            self::METHOD_DMS,
+            self::METHOD_INIT_RECURRENT_DMS,
+            self::METHOD_RECURRENT_DMS
+        ))) {
             return in_array($transaction_status, array(
                 self::STATUS_HOLD_OK,
                 self::STATUS_SUCCESS
@@ -185,16 +236,9 @@ class Transactpro
         return (float) ($value / pow(10, $power));
     }
 
-    public function createTransaction($customer_email, $customer_phone, $billing_address_country, $billing_address_state, $billing_address_city, $billing_address_street, $billing_address_house, $billing_address_flat, $billing_address_zip, $shipping_address_country, $shipping_address_state, $shipping_address_city, $shipping_address_street, $shipping_address_house, $shipping_address_flat, $shipping_address_zip, $amount, $currency, $order_description, $merchant_url, $user_ip, $pan = null, $card_exp = null, $cvv = null, $cardholder_name = null, $payment_method = null)
+    public function createTransaction($payment_method, $customer_email, $customer_phone, $billing_address_country, $billing_address_state, $billing_address_city, $billing_address_street, $billing_address_house, $billing_address_flat, $billing_address_zip, $shipping_address_country, $shipping_address_state, $shipping_address_city, $shipping_address_street, $shipping_address_house, $shipping_address_flat, $shipping_address_zip, $amount, $currency, $order_description, $merchant_url, $user_ip, $pan = null, $card_exp = null, $cvv = null, $cardholder_name = null)
     {
-        if (empty($payment_method)) {
-            $payment_method = $this->config->get('payment_transactpro_payment_method');
-        }
-
         $endpoint_name = $this->getPaymentMethodName($payment_method);
-        if ($this->isRecurrentMethod($payment_method)) {
-            $endpoint_name = 'Init' . $endpoint_name;
-        }
         $endpoint = $this->gateway->{'create' . $endpoint_name}();
 
         $endpoint->customer()
@@ -220,8 +264,6 @@ class Transactpro
             ->setMerchantSideUrl($merchant_url);
 
         $endpoint->system()->setUserIP($user_ip);
-        //TODO: Remove fake ip address
-        $endpoint->system()->setUserIP('86.57.161.11');
 
         $endpoint->money()
             ->setAmount($amount)
@@ -236,22 +278,9 @@ class Transactpro
         return $this->processEndpoint($endpoint);
     }
 
-    public function createRecurrentTransaction($transaction_id, $amount, $payment_method = null)
+    public function createRecurrentTransaction($payment_method, $transaction_id, $amount)
     {
-        if (empty($payment_method)) {
-            $payment_method = $this->config->get('payment_transactpro_payment_method');
-        }
-
-        if (self::METHOD_SMS == $payment_method) {
-            $payment_method = self::METHOD_RECURRENT_SMS;
-        } elseif (self::METHOD_DMS_CHARGE == $payment_method) {
-            $payment_method = self::METHOD_RECURRENT_DMS_HOLD;
-        }
-
         $endpoint_name = $this->getPaymentMethodName($payment_method);
-        if ($this->canRecurrent($payment_method)) {
-            $endpoint_name = 'Init' . $endpoint_name;
-        }
         $endpoint = $this->gateway->{'create' . $endpoint_name}();
 
         $endpoint->command()->setGatewayTransactionID($transaction_id);
@@ -269,7 +298,7 @@ class Transactpro
         return $this->processEndpoint($refund);
     }
 
-    public function chargeDmsHoldTransaction($transaction_id, $amount)
+    public function chargeDmsTransaction($transaction_id, $amount)
     {
         $charge = $this->gateway->createDmsCharge();
         $charge->command()->setGatewayTransactionID($transaction_id);
@@ -278,7 +307,7 @@ class Transactpro
         return $this->processEndpoint($charge);
     }
 
-    public function cancelDmsHoldTransaction($transaction_id)
+    public function cancelDmsTransaction($transaction_id)
     {
         $cancel = $this->gateway->createCancel();
         $cancel->command()->setGatewayTransactionID($transaction_id);
@@ -286,7 +315,8 @@ class Transactpro
         return $this->processEndpoint($cancel);
     }
 
-    public function reverseSmsTransaction($transaction_id) {
+    public function reverseSmsTransaction($transaction_id)
+    {
         $reverse = $this->gateway->createReversal();
         $reverse->command()->setGatewayTransactionID($transaction_id);
 
