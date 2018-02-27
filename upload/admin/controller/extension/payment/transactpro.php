@@ -2,6 +2,7 @@
 
 class ControllerExtensionPaymentTransactpro extends Controller
 {
+
     private $error = array();
 
     public function index()
@@ -9,6 +10,8 @@ class ControllerExtensionPaymentTransactpro extends Controller
         $this->load->language('extension/payment/transactpro');
 
         $this->load->model('setting/setting');
+
+        $this->load->library('transactpro');
 
         if ($this->request->server['HTTPS']) {
             $server = HTTPS_SERVER;
@@ -576,7 +579,12 @@ class ControllerExtensionPaymentTransactpro extends Controller
 
     public function install()
     {
+        $this->load->language('extension/payment/transactpro');
+
+        $this->load->model('setting/setting');
         $this->load->model('extension/payment/transactpro');
+
+        $this->load->library('transactpro');
 
         $this->model_extension_payment_transactpro->createTables();
     }
@@ -692,7 +700,7 @@ class ControllerExtensionPaymentTransactpro extends Controller
         }
 
         if (empty($this->request->post['payment_transactpro_secret_key'])) {
-            $this->error['secret_key'] = $this->language->get('error_secret_key');
+            $this->error['secret_key'] = $this->language->get('secret_key_error');
         }
 
         if (! empty($this->request->post['payment_transactpro_cron_email_status'])) {

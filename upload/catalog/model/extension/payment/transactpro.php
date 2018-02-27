@@ -2,10 +2,6 @@
 
 class ModelExtensionPaymentTransactpro extends Model
 {
-
-    const CAPTURE_API = 1;
-    const CAPTURE_GW = 2;
-
     const RECURRING_ACTIVE = 1;
     const RECURRING_INACTIVE = 2;
     const RECURRING_CANCELLED = 3;
@@ -68,7 +64,9 @@ class ModelExtensionPaymentTransactpro extends Model
 
     public function isCaptureOnGatewaySide()
     {
-        return self::CAPTURE_GW == $this->config->get('payment_transactpro_capture_method');
+        $this->load->library('transactpro');
+
+        return Transactpro::CAPTURE_GW == $this->config->get('payment_transactpro_capture_method');
     }
 
     public function addTransaction($transaction_id, $transaction_status, $payment_method, $amount, $currency, $order_id, $user_ip)
@@ -107,7 +105,7 @@ class ModelExtensionPaymentTransactpro extends Model
 
     public function recurringPayments()
     {
-        return (bool)$this->config->get('payment_transactpro_recurring_status');
+        return (bool) $this->config->get('payment_transactpro_recurring_status');
     }
 
     public function validateCRON()
@@ -160,40 +158,43 @@ class ModelExtensionPaymentTransactpro extends Model
         return $payments;
     }
 
-    public function createRecurringOrder($recurring, $order_id, $description, $reference) {
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "order_recurring` SET `order_id` = '" . (int)$order_id . "', `date_added` = NOW(), `status` = '" . self::RECURRING_ACTIVE . "', `product_id` = '" . (int)$recurring['product_id'] . "', `product_name` = '" . $this->db->escape($recurring['name']) . "', `product_quantity` = '" . $this->db->escape($recurring['quantity']) . "', `recurring_id` = '" . (int)$recurring['recurring']['recurring_id'] . "', `recurring_name` = '" . $this->db->escape($recurring['recurring']['name']) . "', `recurring_description` = '" . $this->db->escape($description) . "', `recurring_frequency` = '" . $this->db->escape($recurring['recurring']['frequency']) . "', `recurring_cycle` = '" . (int)$recurring['recurring']['cycle'] . "', `recurring_duration` = '" . (int)$recurring['recurring']['duration'] . "', `recurring_price` = '" . (float)$recurring['recurring']['price'] . "', `trial` = '" . (int)$recurring['recurring']['trial'] . "', `trial_frequency` = '" . $this->db->escape($recurring['recurring']['trial_frequency']) . "', `trial_cycle` = '" . (int)$recurring['recurring']['trial_cycle'] . "', `trial_duration` = '" . (int)$recurring['recurring']['trial_duration'] . "', `trial_price` = '" . (float)$recurring['recurring']['trial_price'] . "', `reference` = '" . $this->db->escape($reference) . "'");
+    public function createRecurringOrder($recurring, $order_id, $description, $reference)
+    {
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "order_recurring` SET `order_id` = '" . (int) $order_id . "', `date_added` = NOW(), `status` = '" . self::RECURRING_ACTIVE . "', `product_id` = '" . (int) $recurring['product_id'] . "', `product_name` = '" . $this->db->escape($recurring['name']) . "', `product_quantity` = '" . $this->db->escape($recurring['quantity']) . "', `recurring_id` = '" . (int) $recurring['recurring']['recurring_id'] . "', `recurring_name` = '" . $this->db->escape($recurring['recurring']['name']) . "', `recurring_description` = '" . $this->db->escape($description) . "', `recurring_frequency` = '" . $this->db->escape($recurring['recurring']['frequency']) . "', `recurring_cycle` = '" . (int) $recurring['recurring']['cycle'] . "', `recurring_duration` = '" . (int) $recurring['recurring']['duration'] . "', `recurring_price` = '" . (float) $recurring['recurring']['price'] . "', `trial` = '" . (int) $recurring['recurring']['trial'] . "', `trial_frequency` = '" . $this->db->escape($recurring['recurring']['trial_frequency']) . "', `trial_cycle` = '" . (int) $recurring['recurring']['trial_cycle'] . "', `trial_duration` = '" . (int) $recurring['recurring']['trial_duration'] . "', `trial_price` = '" . (float) $recurring['recurring']['trial_price'] . "', `reference` = '" . $this->db->escape($reference) . "'");
 
         return $this->db->getLastId();
     }
 
-    public function addRecurringTransaction($order_recurring_id, $reference, $amount, $currency, $type) {
+    public function addRecurringTransaction($order_recurring_id, $reference, $amount, $currency, $type)
+    {
         $this->load->library('transactpro');
 
         $amount = $this->transactpro->standardDenomination($amount, $currency);
 
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "order_recurring_transaction` SET order_recurring_id='" . (int)$order_recurring_id . "', reference='" . $this->db->escape($reference) . "', type='" . (int)$type . "', amount='" . (float)$amount . "', date_added=NOW()");
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "order_recurring_transaction` SET order_recurring_id='" . (int) $order_recurring_id . "', reference='" . $this->db->escape($reference) . "', type='" . (int) $type . "', amount='" . (float) $amount . "', date_added=NOW()");
     }
 
-    public function updateRecurringExpired($order_recurring_id) {
+    public function updateRecurringExpired($order_recurring_id)
+    {
         $recurring_info = $this->getRecurring($order_recurring_id);
 
         if ($recurring_info['trial']) {
             // If we are in trial, we need to check if the trial will end at some point
-            $expirable = (bool)$recurring_info['trial_duration'];
+            $expirable = (bool) $recurring_info['trial_duration'];
         } else {
             // If we are not in trial, we need to check if the recurring will end at some point
-            $expirable = (bool)$recurring_info['recurring_duration'];
+            $expirable = (bool) $recurring_info['recurring_duration'];
         }
 
         // If recurring payment can expire (trial_duration > 0 AND recurring_duration > 0)
         if ($expirable) {
             $number_of_successful_payments = $this->getTotalSuccessfulPayments($order_recurring_id);
 
-            $total_duration = (int)$recurring_info['trial_duration'] + (int)$recurring_info['recurring_duration'];
+            $total_duration = (int) $recurring_info['trial_duration'] + (int) $recurring_info['recurring_duration'];
 
             // If successful payments exceed total_duration
             if ($number_of_successful_payments >= $total_duration) {
-                $this->db->query("UPDATE `" . DB_PREFIX . "order_recurring` SET status='" . self::RECURRING_EXPIRED . "' WHERE order_recurring_id='" . (int)$order_recurring_id . "'");
+                $this->db->query("UPDATE `" . DB_PREFIX . "order_recurring` SET status='" . self::RECURRING_EXPIRED . "' WHERE order_recurring_id='" . (int) $order_recurring_id . "'");
 
                 return true;
             }
@@ -202,7 +203,8 @@ class ModelExtensionPaymentTransactpro extends Model
         return false;
     }
 
-    public function updateRecurringTrial($order_recurring_id) {
+    public function updateRecurringTrial($order_recurring_id)
+    {
         $recurring_info = $this->getRecurring($order_recurring_id);
 
         // If recurring payment is in trial and can expire (trial_duration > 0)
@@ -211,7 +213,7 @@ class ModelExtensionPaymentTransactpro extends Model
 
             // If successful payments exceed trial_duration
             if ($number_of_successful_payments >= $recurring_info['trial_duration']) {
-                $this->db->query("UPDATE `" . DB_PREFIX . "order_recurring` SET trial='0' WHERE order_recurring_id='" . (int)$order_recurring_id . "'");
+                $this->db->query("UPDATE `" . DB_PREFIX . "order_recurring` SET trial='0' WHERE order_recurring_id='" . (int) $order_recurring_id . "'");
 
                 return true;
             }
@@ -220,54 +222,69 @@ class ModelExtensionPaymentTransactpro extends Model
         return false;
     }
 
-    public function suspendRecurringProfile($order_recurring_id) {
-        $this->db->query("UPDATE `" . DB_PREFIX . "order_recurring` SET status='" . self::RECURRING_SUSPENDED . "' WHERE order_recurring_id='" . (int)$order_recurring_id . "'");
+    public function suspendRecurringProfile($order_recurring_id)
+    {
+        $this->db->query("UPDATE `" . DB_PREFIX . "order_recurring` SET status='" . self::RECURRING_SUSPENDED . "' WHERE order_recurring_id='" . (int) $order_recurring_id . "'");
 
         return true;
     }
 
-    private function getLastSuccessfulRecurringPaymentDate($order_recurring_id) {
+    private function getLastSuccessfulRecurringPaymentDate($order_recurring_id)
+    {
         $this->load->library('transactpro');
 
-        return $this->db->query("SELECT date_added FROM `" . DB_PREFIX . "order_recurring_transaction` WHERE order_recurring_id='" . (int)$order_recurring_id . "' AND type IN ('" . Transactpro::STATUS_SUCCESS . "', '" . Transactpro::STATUS_HOLD_OK . "') ORDER BY date_added DESC LIMIT 0,1")->row['date_added'];
+        return $this->db->query("SELECT date_added FROM `" . DB_PREFIX . "order_recurring_transaction` WHERE order_recurring_id='" . (int) $order_recurring_id . "' AND type IN ('" . Transactpro::STATUS_SUCCESS . "', '" . Transactpro::STATUS_HOLD_OK . "') ORDER BY date_added DESC LIMIT 0,1")->row['date_added'];
     }
 
-    private function getRecurring($order_recurring_id) {
-        $recurring_sql = "SELECT * FROM `" . DB_PREFIX . "order_recurring` WHERE order_recurring_id='" . (int)$order_recurring_id . "'";
+    private function getRecurring($order_recurring_id)
+    {
+        $recurring_sql = "SELECT * FROM `" . DB_PREFIX . "order_recurring` WHERE order_recurring_id='" . (int) $order_recurring_id . "'";
 
         return $this->db->query($recurring_sql)->row;
     }
 
-    private function getTotalSuccessfulPayments($order_recurring_id) {
+    private function getTotalSuccessfulPayments($order_recurring_id)
+    {
         $this->load->library('transactpro');
 
-        return $this->db->query("SELECT COUNT(*) as total FROM `" . DB_PREFIX . "order_recurring_transaction` WHERE order_recurring_id='" . (int)$order_recurring_id . "' AND type IN ('" . Transactpro::STATUS_SUCCESS . "', '" . Transactpro::STATUS_HOLD_OK . "')")->row['total'];
+        return $this->db->query("SELECT COUNT(*) as total FROM `" . DB_PREFIX . "order_recurring_transaction` WHERE order_recurring_id='" . (int) $order_recurring_id . "' AND type IN ('" . Transactpro::STATUS_SUCCESS . "', '" . Transactpro::STATUS_HOLD_OK . "')")->row['total'];
     }
 
-    private function paymentIsDue($order_recurring_id) {
+    private function paymentIsDue($order_recurring_id)
+    {
         // We know the recurring profile is active.
         $recurring_info = $this->getRecurring($order_recurring_id);
 
         if ($recurring_info['trial']) {
             $frequency = $recurring_info['trial_frequency'];
-            $cycle = (int)$recurring_info['trial_cycle'];
+            $cycle = (int) $recurring_info['trial_cycle'];
         } else {
             $frequency = $recurring_info['recurring_frequency'];
-            $cycle = (int)$recurring_info['recurring_cycle'];
+            $cycle = (int) $recurring_info['recurring_cycle'];
         }
         // Find date of last payment
-        if (!$this->getTotalSuccessfulPayments($order_recurring_id)) {
+        if (! $this->getTotalSuccessfulPayments($order_recurring_id)) {
             $previous_time = strtotime($recurring_info['date_added']);
         } else {
             $previous_time = strtotime($this->getLastSuccessfulRecurringPaymentDate($order_recurring_id));
         }
 
         switch ($frequency) {
-            case 'day' : $time_interval = 24 * 3600; break;
-            case 'week' : $time_interval = 7 * 24 * 3600; break;
-            case 'semi_month' : $time_interval = 15 * 24 * 3600; break;
-            case 'month' : $time_interval = 30 * 24 * 3600; break;
-            case 'year' : $time_interval = 365 * 24 * 3600; break;
+            case 'day':
+                $time_interval = 24 * 3600;
+                break;
+            case 'week':
+                $time_interval = 7 * 24 * 3600;
+                break;
+            case 'semi_month':
+                $time_interval = 15 * 24 * 3600;
+                break;
+            case 'month':
+                $time_interval = 30 * 24 * 3600;
+                break;
+            case 'year':
+                $time_interval = 365 * 24 * 3600;
+                break;
         }
 
         $due_date = date('Y-m-d', $previous_time + ($time_interval * $cycle));
@@ -277,7 +294,8 @@ class ModelExtensionPaymentTransactpro extends Model
         return $this_date >= $due_date;
     }
 
-    public function cronEmail($result) {
+    public function cronEmail($result)
+    {
         $this->load->language('extension/payment/transactpro');
 
         $mail = new Mail();
@@ -297,13 +315,13 @@ class ModelExtensionPaymentTransactpro extends Model
 
         $message = $this->language->get('text_cron_message') . $br . $br;
 
-        if (!empty($result['transaction_error'])) {
+        if (! empty($result['transaction_error'])) {
             $message .= '<strong>' . $this->language->get('text_cron_summary_error_heading') . '</strong>' . $br;
 
             $message .= implode($br, $result['transaction_error']) . $br . $br;
         }
 
-        if (!empty($result['transaction_fail'])) {
+        if (! empty($result['transaction_fail'])) {
             $message .= '<strong>' . $this->language->get('text_cron_summary_fail_heading') . '</strong>' . $br;
 
             foreach ($result['transaction_fail'] as $order_recurring_id => $amount) {
@@ -311,7 +329,7 @@ class ModelExtensionPaymentTransactpro extends Model
             }
         }
 
-        if (!empty($result['transaction_success'])) {
+        if (! empty($result['transaction_success'])) {
             $message .= '<strong>' . $this->language->get('text_cron_summary_success_heading') . '</strong>' . $br;
 
             foreach ($result['transaction_success'] as $order_recurring_id => $amount) {
@@ -326,4 +344,5 @@ class ModelExtensionPaymentTransactpro extends Model
         $mail->setText(strip_tags($message));
         $mail->setHtml($message);
         $mail->send();
-    }}
+    }
+}

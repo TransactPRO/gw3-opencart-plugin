@@ -2,6 +2,8 @@
 
 class Transactpro
 {
+    const CAPTURE_API = 1;
+    const CAPTURE_GW = 2;
 
     const METHOD_SMS = 1;
     const METHOD_DMS = 2;
@@ -45,9 +47,21 @@ class Transactpro
     const STATUS_P2P_FAILED = 35;
     const STATUS_GATEWAY_ERROR = 99;
 
-
     public function __construct($registry)
     {
+        spl_autoload_register(function ($class) {
+            if (strpos($class, 'TransactPro\\') === 0) {
+                $class_file = str_replace('\\', DIRECTORY_SEPARATOR, substr($class, 12)) . '.php';
+                include_once join(DIRECTORY_SEPARATOR, array(
+                    __DIR__,
+                    'transactpro',
+                    'gw3-client',
+                    'src',
+                    $class_file
+                ));
+            }
+        });
+
         $this->session = $registry->get('session');
         $this->url = $registry->get('url');
         $this->config = $registry->get('config');
@@ -58,8 +72,8 @@ class Transactpro
 
         $this->gateway = new \TransactPro\Gateway\Gateway($this->config->get('payment_transactpro_gateway_uri'));
         $this->gateway->auth()
-            ->setAccountId($this->config->get('payment_transactpro_account_id'))
-            ->setSecretKey($this->config->get('payment_transactpro_secret_key'));
+            ->setAccountId((int) $this->config->get('payment_transactpro_account_id'))
+            ->setSecretKey((string) $this->config->get('payment_transactpro_secret_key'));
     }
 
     public function getTransactionStatusName($transaction_status)
@@ -118,11 +132,11 @@ class Transactpro
             self::METHOD_RECURRENT_SMS => 'RecurrentSms',
             self::METHOD_RECURRENT_DMS => 'RecurrentDms'
         );
-
+        
         if (array_key_exists($payment_method, $method_names)) {
             return $method_names[$payment_method];
         } else {
-            return 'Unknown';
+            return FALSE;
         }
     }
 
@@ -132,7 +146,7 @@ class Transactpro
             self::METHOD_SMS,
             self::METHOD_INIT_RECURRENT_SMS,
             self::METHOD_RECURRENT_SMS
-        )) &&in_array($transaction_status, array(
+        )) && in_array($transaction_status, array(
             self::STATUS_SUCCESS
         ));
     }
@@ -238,137 +252,123 @@ class Transactpro
 
     public function createTransaction($payment_method, $customer_email, $customer_phone, $billing_address_country, $billing_address_state, $billing_address_city, $billing_address_street, $billing_address_house, $billing_address_flat, $billing_address_zip, $shipping_address_country, $shipping_address_state, $shipping_address_city, $shipping_address_street, $shipping_address_house, $shipping_address_flat, $shipping_address_zip, $amount, $currency, $order_description, $merchant_url, $user_ip, $pan = null, $card_exp = null, $cvv = null, $cardholder_name = null)
     {
-        $endpoint_name = $this->getPaymentMethodName($payment_method);
+        $endpoint_name = $this->getPaymentMethodName((int) $payment_method);
+        if (FALSE === $endpoint_name) {
+            throw new Exception('Invalid payment method selected.');
+        }
+
         $endpoint = $this->gateway->{'create' . $endpoint_name}();
-
+        
         $endpoint->customer()
-            ->setEmail($customer_email)
-            ->setPhone($customer_phone)
-            ->setBillingAddressCountry($billing_address_country)
-            ->setBillingAddressState($billing_address_state)
-            ->setBillingAddressCity($billing_address_city)
-            ->setBillingAddressStreet($billing_address_street)
-            ->setBillingAddressHouse($billing_address_house)
-            ->setBillingAddressFlat($billing_address_flat)
-            ->setBillingAddressZIP($billing_address_zip)
-            ->setShippingAddressCountry($shipping_address_country)
-            ->setShippingAddressState($shipping_address_state)
-            ->setShippingAddressCity($shipping_address_city)
-            ->setShippingAddressStreet($shipping_address_street)
-            ->setShippingAddressHouse($shipping_address_house)
-            ->setShippingAddressFlat($shipping_address_flat)
-            ->setShippingAddressZIP($shipping_address_zip);
-
+            ->setEmail((string) $customer_email)
+            ->setPhone((string) $customer_phone)
+            ->setBillingAddressCountry((string) $billing_address_country)
+            ->setBillingAddressState((string) $billing_address_state)
+            ->setBillingAddressCity((string) $billing_address_city)
+            ->setBillingAddressStreet((string) $billing_address_street)
+            ->setBillingAddressHouse((string) $billing_address_house)
+            ->setBillingAddressFlat((string) $billing_address_flat)
+            ->setBillingAddressZIP((string) $billing_address_zip)
+            ->setShippingAddressCountry((string) $shipping_address_country)
+            ->setShippingAddressState((string) $shipping_address_state)
+            ->setShippingAddressCity((string) $shipping_address_city)
+            ->setShippingAddressStreet((string) $shipping_address_street)
+            ->setShippingAddressHouse((string) $shipping_address_house)
+            ->setShippingAddressFlat((string) $shipping_address_flat)
+            ->setShippingAddressZIP((string) $shipping_address_zip);
+        
         $endpoint->order()
-            ->setDescription($order_description)
-            ->setMerchantSideUrl($merchant_url);
-
-        $endpoint->system()->setUserIP($user_ip);
-
+            ->setDescription((string) $order_description)
+            ->setMerchantSideUrl((string) $merchant_url);
+        
+        $endpoint->system()->setUserIP((string) $user_ip);
+        
         $endpoint->money()
-            ->setAmount($amount)
-            ->setCurrency($currency);
-
+            ->setAmount((int) $amount)
+            ->setCurrency((string) $currency);
+        
         $endpoint->paymentMethod()
-            ->setPAN($pan)
-            ->setExpire($card_exp)
-            ->setCVV($cvv)
-            ->setCardHolderName($cardholder_name);
-
+            ->setPAN((string) $pan)
+            ->setExpire((string) $card_exp)
+            ->setCVV((string) $cvv)
+            ->setCardHolderName((string) $cardholder_name);
+        
         return $this->processEndpoint($endpoint);
     }
 
     public function createRecurrentTransaction($payment_method, $transaction_id, $amount)
     {
-        $endpoint_name = $this->getPaymentMethodName($payment_method);
+        $endpoint_name = $this->getPaymentMethodName((int) $payment_method);
+        if (FALSE === $endpoint_name) {
+            throw new Exception('Invalid payment method selected.');
+        }
+        
         $endpoint = $this->gateway->{'create' . $endpoint_name}();
 
-        $endpoint->command()->setGatewayTransactionID($transaction_id);
-        $endpoint->money()->setAmount($amount);
-
+        $endpoint->command()->setGatewayTransactionID((string) $transaction_id);
+        $endpoint->money()->setAmount((int) $amount);
+        
         return $this->processEndpoint($endpoint);
     }
 
     public function refundTransaction($transaction_id, $amount)
     {
         $refund = $this->gateway->createRefund();
-        $refund->command()->setGatewayTransactionID($transaction_id);
-        $refund->money()->setAmount($amount);
-
+        $refund->command()->setGatewayTransactionID((string) $transaction_id);
+        $refund->money()->setAmount((int) $amount);
+        
         return $this->processEndpoint($refund);
     }
 
     public function chargeDmsTransaction($transaction_id, $amount)
     {
         $charge = $this->gateway->createDmsCharge();
-        $charge->command()->setGatewayTransactionID($transaction_id);
-        $charge->money()->setAmount($amount);
-
+        $charge->command()->setGatewayTransactionID((string) $transaction_id);
+        $charge->money()->setAmount((int) $amount);
+        
         return $this->processEndpoint($charge);
     }
 
     public function cancelDmsTransaction($transaction_id)
     {
         $cancel = $this->gateway->createCancel();
-        $cancel->command()->setGatewayTransactionID($transaction_id);
-
+        $cancel->command()->setGatewayTransactionID((string) $transaction_id);
+        
         return $this->processEndpoint($cancel);
     }
 
     public function reverseSmsTransaction($transaction_id)
     {
         $reverse = $this->gateway->createReversal();
-        $reverse->command()->setGatewayTransactionID($transaction_id);
-
+        $reverse->command()->setGatewayTransactionID((string) $transaction_id);
+        
         return $this->processEndpoint($reverse);
     }
 
-    public function getTransactionsStatusHistory(array $transaction_ids)
-    {
-        $history = $this->gateway->createHistory();
-        if (2 == $this->config->get('payment_transactpro_capture_method')) {
-            $history->info()->setGatewayTransactionIDs($transaction_ids);
-        } else {
-            $history->info()->setMerchantTransactionIDs($transaction_ids);
-        }
-        return $this->processEndpoint($history);
-    }
-
-    public function getTransactionsStatus(array $transaction_ids)
-    {
-        $status = $this->gateway->createStatus();
-        if (2 == $this->config->get('payment_transactpro_capture_method')) {
-            $status->info()->setGatewayTransactionIDs($transaction_ids);
-        } else {
-            $status->info()->setMerchantTransactionIDs($transaction_ids);
-        }
-        return $this->processEndpoint($status);
-    }
-
-    public function auth(string $account_id, string $secret_key): self
+    public function auth($account_id, $secret_key): self
     {
         $this->gateway->auth()
-            ->setAccountId($account_id)
-            ->setSecretKey($secret_key);
+            ->setAccountId((int) $account_id)
+            ->setSecretKey((string) $secret_key);
         return $this;
     }
 
-    protected function processEndpoint(\TransactPro\Gateway\Operations\Operation $endpoint)
+    protected function processEndpoint($endpoint)
     {
         $request = $this->gateway->generateRequest($endpoint);
         $response = $this->gateway->process($request);
-
+        
         if (200 !== $response->getStatusCode()) {
             throw new Exception($response->getBody(), $response->getStatusCode());
         }
-
+        
         $json = json_decode($response->getBody(), true);
         $json_status = json_last_error();
-
+        
         if (JSON_ERROR_NONE !== $json_status) {
             throw new Exception('JSON ' . json_last_error_msg(), $json_status);
         }
-
+        
         if (! isset($json['gw']) || empty($json['gw'])) {
             if (isset($json['error']) && ! empty($json['error'])) {
                 throw new Exception($json['error']['message'], $json['error']['code']);
@@ -378,11 +378,11 @@ class Transactpro
         } elseif (isset($json['error']['message'])) {
             $json['error'] = $json['error']['message'];
         }
-
+        
         if (empty($json['error'])) {
             unset($json['error']);
         }
-
+        
         return $json;
     }
 }

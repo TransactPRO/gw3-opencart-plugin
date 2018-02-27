@@ -1,6 +1,10 @@
 <?php
-class ControllerExtensionRecurringTransactpro extends Controller {
-    public function index() {
+
+class ControllerExtensionRecurringTransactpro extends Controller
+{
+
+    public function index()
+    {
         $this->load->language('extension/recurring/transactpro');
 
         $this->load->model('account/recurring');
@@ -29,7 +33,8 @@ class ControllerExtensionRecurringTransactpro extends Controller {
         }
     }
 
-    public function cancel() {
+    public function cancel()
+    {
         $this->load->language('extension/recurring/transactpro');
 
         $this->load->model('account/recurring');

@@ -1,6 +1,7 @@
 <?php
 
-class ModelExtensionPaymentTransactpro extends Model {
+class ModelExtensionPaymentTransactpro extends Model
+{
 
     const RECURRING_ACTIVE = 1;
     const RECURRING_INACTIVE = 2;
@@ -9,20 +10,21 @@ class ModelExtensionPaymentTransactpro extends Model {
     const RECURRING_EXPIRED = 5;
     const RECURRING_PENDING = 6;
 
-    public function getTransaction($transaction_id) {
-        return $this->db->query("SELECT * FROM `" . DB_PREFIX . "transactpro_transaction` WHERE transaction_id='" . (int)$transaction_id . "'")->row;
+    public function getTransaction($transaction_id)
+    {
+        return $this->db->query("SELECT * FROM `" . DB_PREFIX . "transactpro_transaction` WHERE transaction_id='" . (int) $transaction_id . "'")->row;
     }
 
-    public function getTransactions($filters) {
+    public function getTransactions($filters)
+    {
         $sql = "SELECT * FROM `" . DB_PREFIX . "transactpro_transaction` WHERE 1";
 
-
         if (isset($filters['transaction_guid'])) {
-            $sql .= " AND transaction_guid='" . (int)$filters['order_id'] . "'";
+            $sql .= " AND transaction_guid='" . (int) $filters['order_id'] . "'";
         }
 
         if (isset($filters['order_id'])) {
-            $sql .= " AND order_id='" . (int)$filters['order_id'] . "'";
+            $sql .= " AND order_id='" . (int) $filters['order_id'] . "'";
         }
 
         $sql .= " ORDER BY created_at DESC";
@@ -34,15 +36,16 @@ class ModelExtensionPaymentTransactpro extends Model {
         return $this->db->query($sql)->rows;
     }
 
-    public function getTotalTransactions($filters) {
+    public function getTotalTransactions($filters)
+    {
         $sql = "SELECT COUNT(*) as total FROM `" . DB_PREFIX . "transactpro_transaction` WHERE 1";
 
         if (isset($filters['transaction_guid'])) {
-            $sql .= " AND transaction_guid='" . (int)$filters['order_id'] . "'";
+            $sql .= " AND transaction_guid='" . (int) $filters['order_id'] . "'";
         }
 
         if (isset($filters['order_id'])) {
-            $sql .= " AND order_id='" . (int)$filters['order_id'] . "'";
+            $sql .= " AND order_id='" . (int) $filters['order_id'] . "'";
         }
 
         return $this->db->query($sql)->row['total'];
@@ -58,7 +61,8 @@ class ModelExtensionPaymentTransactpro extends Model {
         $this->db->query("UPDATE `" . DB_PREFIX . "transactpro_transaction` SET transaction_status='" . (int) $transaction_status . "' WHERE transaction_id='" . (int) $transaction_id . "'");
     }
 
-    public function getOrderStatusId($order_id, $transaction_status = null) {
+    public function getOrderStatusId($order_id, $transaction_status = null)
+    {
         if ($transaction_status) {
             $this->load->library('transactpro');
 
@@ -72,11 +76,13 @@ class ModelExtensionPaymentTransactpro extends Model {
         }
     }
 
-    public function editOrderRecurringStatus($order_recurring_id, $status) {
-        $this->db->query("UPDATE `" . DB_PREFIX . "order_recurring` SET `status` = '" . (int)$status . "' WHERE `order_recurring_id` = '" . (int)$order_recurring_id . "'");
+    public function editOrderRecurringStatus($order_recurring_id, $status)
+    {
+        $this->db->query("UPDATE `" . DB_PREFIX . "order_recurring` SET `status` = '" . (int) $status . "' WHERE `order_recurring_id` = '" . (int) $order_recurring_id . "'");
     }
 
-    public function createTables() {
+    public function createTables()
+    {
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "transactpro_transaction` (
           `transaction_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
           `transaction_guid` char(40) NOT NULL,
@@ -96,7 +102,8 @@ class ModelExtensionPaymentTransactpro extends Model {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
     }
 
-    public function dropTables() {
+    public function dropTables()
+    {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "transactpro_transaction`");
     }
 }

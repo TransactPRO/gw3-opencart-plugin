@@ -1,12 +1,14 @@
 <?php
 
-function transactpro_validate() {
+function transactpro_validate()
+{
     if (php_sapi_name() != 'cli') {
         die('Not in Command Line.');
     }
 }
 
-function transactpro_chdir($current_dir) {
+function transactpro_chdir($current_dir)
+{
     $root_dir = dirname(dirname(dirname($current_dir)));
 
     chdir($root_dir);
@@ -14,13 +16,15 @@ function transactpro_chdir($current_dir) {
     return $root_dir;
 }
 
-function transactpro_define_route() {
+function transactpro_define_route()
+{
     define('TRANSACTPRO_ROUTE', 'extension/recurring/transactpro/recurring');
 
     $_GET['route'] = TRANSACTPRO_ROUTE;
 }
 
-function transactpro_init($current_dir) {
+function transactpro_init($current_dir)
+{
     global $argc, $argv;
 
     // Validate environment
