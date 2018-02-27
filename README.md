@@ -42,7 +42,7 @@ Enable and configure module in OpenCart admin (`Extensions > Extensions > Paymen
 - `Recurring Transaction Successful`: Send email to the customer in case successful recurrent transaction
 - `Recurring Transaction Failed`: Send email to the customer in case failed recurrent transaction
 
-### **Note:** At the current time gateway accepts only Euro. Please configure your site to deal with Euro currency by default!
+**Note: At the current time gateway accepts only Euro. Please, configure your site to deal with Euro currency by default!**
 
 
 ### Submit bugs and feature requests
