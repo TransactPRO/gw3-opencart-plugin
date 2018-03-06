@@ -250,7 +250,7 @@ class Transactpro
         return (float) ($value / pow(10, $power));
     }
 
-    public function createTransaction($payment_method, $customer_email, $customer_phone, $billing_address_country, $billing_address_state, $billing_address_city, $billing_address_street, $billing_address_house, $billing_address_flat, $billing_address_zip, $shipping_address_country, $shipping_address_state, $shipping_address_city, $shipping_address_street, $shipping_address_house, $shipping_address_flat, $shipping_address_zip, $amount, $currency, $order_description, $merchant_url, $user_ip, $pan = null, $card_exp = null, $cvv = null, $cardholder_name = null)
+    public function createTransaction($payment_method, $customer_email, $customer_phone, $billing_address_country, $billing_address_state, $billing_address_city, $billing_address_street, $billing_address_house, $billing_address_flat, $billing_address_zip, $shipping_address_country, $shipping_address_state, $shipping_address_city, $shipping_address_street, $shipping_address_house, $shipping_address_flat, $shipping_address_zip, $amount, $currency, $order_description, $merchant_url, $user_ip, $pan = null, $card_exp = null, $cvv = null, $cardholder_name = null, $customer_birth_date = 'N/A')
     {
         $endpoint_name = $this->getPaymentMethodName((int) $payment_method);
         if (FALSE === $endpoint_name) {
@@ -262,6 +262,7 @@ class Transactpro
         $endpoint->customer()
             ->setEmail((string) $customer_email)
             ->setPhone((string) $customer_phone)
+            ->setBirthDate((string) $customer_birth_date)
             ->setBillingAddressCountry((string) $billing_address_country)
             ->setBillingAddressState((string) $billing_address_state)
             ->setBillingAddressCity((string) $billing_address_city)
@@ -356,6 +357,8 @@ class Transactpro
     protected function processEndpoint($endpoint)
     {
         $request = $this->gateway->generateRequest($endpoint);
+        file_put_contents(DIR_LOGS . '/request.log', date('Y-m-d H:i:s') . ' ' . var_export($request, true) . chr(13) . chr(10), FILE_APPEND);
+
         $response = $this->gateway->process($request);
         
         if (200 !== $response->getStatusCode()) {
