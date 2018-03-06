@@ -277,8 +277,9 @@ class Transactpro
             ->setShippingAddressHouse((string) $shipping_address_house)
             ->setShippingAddressFlat((string) $shipping_address_flat)
             ->setShippingAddressZIP((string) $shipping_address_zip);
-        
+
         $endpoint->order()
+            ->setRecipientName((string) $this->config->get('config_owner'))
             ->setDescription((string) $order_description)
             ->setMerchantSideUrl((string) $merchant_url);
         
@@ -357,8 +358,6 @@ class Transactpro
     protected function processEndpoint($endpoint)
     {
         $request = $this->gateway->generateRequest($endpoint);
-        file_put_contents(DIR_LOGS . '/request.log', date('Y-m-d H:i:s') . ' ' . var_export($request, true) . chr(13) . chr(10), FILE_APPEND);
-
         $response = $this->gateway->process($request);
         
         if (200 !== $response->getStatusCode()) {
