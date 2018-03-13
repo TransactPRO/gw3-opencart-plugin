@@ -1,6 +1,6 @@
 # User Documentation
 
-[PDF version](./gw3-opencart-plugin.pdf)
+[PDF version](./pdf/transactpro-gw3-opencart3.pdf)
 
 ## Installation
 - Download latest module version from [distributions](../dist/)
