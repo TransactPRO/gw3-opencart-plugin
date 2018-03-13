@@ -195,11 +195,11 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_sms_failed_sms"><span data-toggle="tooltip" title="{{ transaction_status_sms_failed_sms_help }}">{{ transaction_status_sms_failed_sms_label }}</span></label>
+                                    <label class="col-sm-2 control-label" for="dropdown_payment_transactpro_transaction_status_sms_failed"><span data-toggle="tooltip" title="{{ transaction_status_sms_failed_help }}">{{ transaction_status_sms_failed_label }}</span></label>
                                     <div class="col-sm-10">
-                                        <select name="payment_transactpro_transaction_status_sms_failed_sms" id="dropdown_payment_transactpro_transaction_status_sms_failed_sms" class="form-control">
+                                        <select name="payment_transactpro_transaction_status_sms_failed" id="dropdown_payment_transactpro_transaction_status_sms_failed" class="form-control">
                                             {% for order_status in order_statuses %}
-                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_sms_failed_sms %} selected {% endif %}>{{ order_status.name }}</option>
+                                                <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_transactpro_transaction_status_sms_failed %} selected {% endif %}>{{ order_status.name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>

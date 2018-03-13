@@ -61,7 +61,7 @@ class ControllerExtensionPaymentTransactpro extends Controller
         $data['payment_transactpro_transaction_status_sent_to_bank'] = $this->getSettingValue('payment_transactpro_transaction_status_sent_to_bank');
         $data['payment_transactpro_transaction_status_hold_ok'] = $this->getSettingValue('payment_transactpro_transaction_status_hold_ok');
         $data['payment_transactpro_transaction_status_dms_hold_failed'] = $this->getSettingValue('payment_transactpro_transaction_status_dms_hold_failed');
-        $data['payment_transactpro_transaction_status_sms_failed_sms'] = $this->getSettingValue('payment_transactpro_transaction_status_sms_failed_sms');
+        $data['payment_transactpro_transaction_status_sms_failed'] = $this->getSettingValue('payment_transactpro_transaction_status_sms_failed');
         $data['payment_transactpro_transaction_status_dms_charge_failed'] = $this->getSettingValue('payment_transactpro_transaction_status_dms_charge_failed');
         $data['payment_transactpro_transaction_status_success'] = $this->getSettingValue('payment_transactpro_transaction_status_success');
         $data['payment_transactpro_transaction_status_expired'] = $this->getSettingValue('payment_transactpro_transaction_status_expired');

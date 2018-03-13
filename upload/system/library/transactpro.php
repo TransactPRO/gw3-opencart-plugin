@@ -18,7 +18,7 @@ class Transactpro
     const STATUS_SENT_TO_BANK = 2;
     const STATUS_HOLD_OK = 3;
     const STATUS_DMS_HOLD_FAILED = 4;
-    const STATUS_SMS_FAILED_SMS = 5;
+    const STATUS_SMS_FAILED= 5;
     const STATUS_DMS_CHARGE_FAILED = 6;
     const STATUS_SUCCESS = 7;
     const STATUS_EXPIRED = 8;
@@ -83,7 +83,7 @@ class Transactpro
             self::STATUS_SENT_TO_BANK => 'SENT_TO_BANK',
             self::STATUS_HOLD_OK => 'HOLD_OK',
             self::STATUS_DMS_HOLD_FAILED => 'DMS_HOLD_FAILED',
-            self::STATUS_SMS_FAILED_SMS => 'SMS_FAILED_SMS',
+            self::STATUS_SMS_FAILED => 'SMS_FAILED',
             self::STATUS_DMS_CHARGE_FAILED => 'DMS_CHARGE_FAILED',
             self::STATUS_SUCCESS => 'SUCCESS',
             self::STATUS_EXPIRED => 'EXPIRED',
