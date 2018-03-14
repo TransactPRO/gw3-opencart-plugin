@@ -263,20 +263,20 @@ class Transactpro
             ->setEmail((string) $customer_email)
             ->setPhone((string) $customer_phone)
             ->setBirthDate((string) $customer_birth_date)
-            ->setBillingAddressCountry((string) $billing_address_country)
-            ->setBillingAddressState((string) $billing_address_state)
-            ->setBillingAddressCity((string) $billing_address_city)
-            ->setBillingAddressStreet((string) $billing_address_street)
-            ->setBillingAddressHouse((string) $billing_address_house)
-            ->setBillingAddressFlat((string) $billing_address_flat)
-            ->setBillingAddressZIP((string) $billing_address_zip)
-            ->setShippingAddressCountry((string) $shipping_address_country)
-            ->setShippingAddressState((string) $shipping_address_state)
-            ->setShippingAddressCity((string) $shipping_address_city)
-            ->setShippingAddressStreet((string) $shipping_address_street)
-            ->setShippingAddressHouse((string) $shipping_address_house)
-            ->setShippingAddressFlat((string) $shipping_address_flat)
-            ->setShippingAddressZIP((string) $shipping_address_zip);
+            ->setBillingAddressCountry($this->sanitize($billing_address_country))
+            ->setBillingAddressState($this->sanitize($billing_address_state))
+            ->setBillingAddressCity($this->sanitize($billing_address_city))
+            ->setBillingAddressStreet($this->sanitize($billing_address_street))
+            ->setBillingAddressHouse($this->sanitize($billing_address_house))
+            ->setBillingAddressFlat($this->sanitize($billing_address_flat))
+            ->setBillingAddressZIP($this->sanitize($billing_address_zip))
+            ->setShippingAddressCountry($this->sanitize($shipping_address_country))
+            ->setShippingAddressState($this->sanitize($shipping_address_state))
+            ->setShippingAddressCity($this->sanitize($shipping_address_city))
+            ->setShippingAddressStreet($this->sanitize($shipping_address_street))
+            ->setShippingAddressHouse($this->sanitize($shipping_address_house))
+            ->setShippingAddressFlat($this->sanitize($shipping_address_flat))
+            ->setShippingAddressZIP($this->sanitize($shipping_address_zip));
 
         $endpoint->order()
             ->setRecipientName((string) $this->config->get('config_owner'))
@@ -386,5 +386,10 @@ class Transactpro
         }
         
         return $json;
+    }
+
+    protected function sanitize((string) $value)
+    {
+        return preg_replace('/[^\w\d\s]/', ' ', $value);
     }
 }
