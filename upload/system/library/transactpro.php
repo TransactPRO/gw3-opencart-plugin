@@ -347,7 +347,7 @@ class Transactpro
         return $this->processEndpoint($reverse);
     }
 
-    public function auth($account_id, $secret_key): self
+    public function auth($account_id, $secret_key)
     {
         $this->gateway->auth()
             ->setAccountId((int) $account_id)
@@ -388,8 +388,8 @@ class Transactpro
         return $json;
     }
 
-    protected function sanitize((string) $value)
+    protected function sanitize($value)
     {
-        return preg_replace('/[^\w\d\s]/', ' ', $value);
+        return preg_replace('/[^\w\d\s]/', ' ', (string) $value);
     }
 }
