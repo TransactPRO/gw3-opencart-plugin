@@ -281,7 +281,8 @@ class Transactpro
         $endpoint->order()
             ->setRecipientName((string) $this->config->get('config_owner'))
             ->setDescription((string) $order_description)
-            ->setMerchantSideUrl((string) $merchant_url);
+            ->setMerchantSideUrl((string) $merchant_url)
+            ->setMerchantTransactionId((string) time());
         
         $endpoint->system()->setUserIP((string) $user_ip);
         
@@ -306,8 +307,8 @@ class Transactpro
         }
         
         $endpoint = $this->gateway->{'create' . $endpoint_name}();
-
         $endpoint->command()->setGatewayTransactionID((string) $transaction_id);
+        $endpoint->order()->setMerchantTransactionId((string) time());
         $endpoint->money()->setAmount((int) $amount);
         
         return $this->processEndpoint($endpoint);
@@ -317,6 +318,7 @@ class Transactpro
     {
         $refund = $this->gateway->createRefund();
         $refund->command()->setGatewayTransactionID((string) $transaction_id);
+        $refund->order()->setMerchantTransactionId((string) time());
         $refund->money()->setAmount((int) $amount);
         
         return $this->processEndpoint($refund);
@@ -326,6 +328,7 @@ class Transactpro
     {
         $charge = $this->gateway->createDmsCharge();
         $charge->command()->setGatewayTransactionID((string) $transaction_id);
+        $charge->order()->setMerchantTransactionId((string) time());
         $charge->money()->setAmount((int) $amount);
         
         return $this->processEndpoint($charge);
@@ -335,6 +338,7 @@ class Transactpro
     {
         $cancel = $this->gateway->createCancel();
         $cancel->command()->setGatewayTransactionID((string) $transaction_id);
+        $cancel->order()->setMerchantTransactionId((string) time());
         
         return $this->processEndpoint($cancel);
     }
@@ -343,6 +347,7 @@ class Transactpro
     {
         $reverse = $this->gateway->createReversal();
         $reverse->command()->setGatewayTransactionID((string) $transaction_id);
+        $reverse->order()->setMerchantTransactionId((string) time());
         
         return $this->processEndpoint($reverse);
     }

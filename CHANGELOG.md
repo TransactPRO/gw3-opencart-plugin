@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.0.1 (2019-01-15)
+
+### Changed
+- Provide "merchant-transaction-id" information to meet new Transact Pro Gateway requirements
+
 ## v1.0 (2018-03-12)
 
 ### Added
