@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.0.2 (2019-03-23)
+
+### Added
+- Add ability to log Transact Pro Gateway requests and responses (can be turned on/off in plugin configuration)
+
 ## v1.0.1 (2019-01-15)
 
 ### Changed

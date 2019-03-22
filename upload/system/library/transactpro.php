@@ -362,9 +362,15 @@ class Transactpro
 
     protected function processEndpoint($endpoint)
     {
-        $request = $this->gateway->generateRequest($endpoint);
-        $response = $this->gateway->process($request);
-        
+        try {
+            $request = $this->gateway->generateRequest($endpoint);
+            $response = $this->gateway->process($request);
+            $this->log($request, $response);
+        } catch (Exception $error) {
+            $this->log($request, $error);
+            throw $error;
+        }
+
         if (200 !== $response->getStatusCode()) {
             throw new Exception($response->getBody(), $response->getStatusCode());
         }
@@ -396,5 +402,23 @@ class Transactpro
     protected function sanitize($value)
     {
         return preg_replace('/[^\w\d\s]/', ' ', (string) $value);
+    }
+
+    protected function log($request, $response) 
+    {
+        if (1 != $this->config->get('payment_transactpro_logging')) {
+            return;
+        }
+
+        $data = date('Y-m-d H:i:s') . "\r\n";
+        $data = $data . "---> Request ({$this->config->get('payment_transactpro_gateway_uri')}{$request->getPath()}):\r\n" . var_export($request->getData(), true) . "\r\n";
+        if ($response instanceof Exception) {
+            $data = $data . "<--- Error ({$response->getMessage()}):\r\n" . $response->getTraceAsString() . "\r\n";
+        } else {
+            $data = $data . "<--- Response ({$response->getStatusCode()}):\r\n" . $response->getBody() . "\r\n";
+        }
+        $data = $data . "---------------------------------------\r\n\r\n";
+
+        file_put_contents(DIR_LOGS . 'transactpro.log', $data, FILE_APPEND);
     }
 }

@@ -182,4 +182,6 @@ $_['label_confirm_charge'] = 'You are about to charge the following amount: <str
 $_['label_confirm_refund'] = 'Please provide a reason for the refund:';
 $_['label_confirm_cancel'] = 'You are about to cancel / revrese the following amount: <strong>%s</strong>. Click OK to proceed.';
 $_['label_insert_amount'] = 'Please insert the refund amount. Maximum: %s in %s:';
+$_['logging_label'] = 'Enable logging';
+$_['logging_help'] = 'Record all Transact Pro payment gateway requests and responses to file.';
 

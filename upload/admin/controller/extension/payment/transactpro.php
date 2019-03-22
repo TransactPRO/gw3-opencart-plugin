@@ -89,6 +89,8 @@ class ControllerExtensionPaymentTransactpro extends Controller
         $data['payment_transactpro_transaction_status_credit_failed'] = $this->getSettingValue('payment_transactpro_transaction_status_credit_failed');
         $data['payment_transactpro_transaction_status_p2p_failed'] = $this->getSettingValue('payment_transactpro_transaction_status_p2p_failed');
 
+        $data['payment_transactpro_logging'] = $this->getSettingValue('payment_transactpro_logging');
+
         $data['payment_transactpro_cron_token'] = $this->getSettingValue('payment_transactpro_cron_token', md5(mt_rand()));
         $data['payment_transactpro_cron_acknowledge'] = $this->getSettingValue('payment_transactpro_cron_acknowledge', null, true);
         $data['payment_transactpro_cron_email_status'] = $this->getSettingValue('payment_transactpro_cron_email_status');
