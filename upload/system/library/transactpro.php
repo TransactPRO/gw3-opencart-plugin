@@ -365,9 +365,9 @@ class Transactpro
         try {
             $request = $this->gateway->generateRequest($endpoint);
             $response = $this->gateway->process($request);
-            $this->log($request, $response);
+            $this->logOutcome($request, $response);
         } catch (Exception $error) {
-            $this->log($request, $error);
+            $this->logOutcome($request, $error);
             throw $error;
         }
 
@@ -404,21 +404,44 @@ class Transactpro
         return preg_replace('/[^\w\d\s]/', ' ', (string) $value);
     }
 
-    protected function log($request, $response) 
-    {
+    public function logOutcome($request, $response) {
         if (1 != $this->config->get('payment_transactpro_logging')) {
             return;
         }
 
         $data = date('Y-m-d H:i:s') . "\r\n";
-        $data = $data . "---> Request ({$this->config->get('payment_transactpro_gateway_uri')}{$request->getPath()}):\r\n" . var_export($request->getData(), true) . "\r\n";
-        if ($response instanceof Exception) {
-            $data = $data . "<--- Error ({$response->getMessage()}):\r\n" . $response->getTraceAsString() . "\r\n";
-        } else {
-            $data = $data . "<--- Response ({$response->getStatusCode()}):\r\n" . $response->getBody() . "\r\n";
+
+        if ($request)  {
+            $data = $data . "---> Request ({$this->config->get('payment_transactpro_gateway_uri')}{$request->getPath()}):\r\n" . var_export($request->getData(), true) . "\r\n";
         }
+
+        if ($response) {
+            if ($response instanceof Exception) {
+                $data = $data . "<--- Error ({$response->getMessage()}):\r\n{$response->getTraceAsString()}\r\n";
+            } else {
+                $data = $data . "<--- Response ({$response->getStatusCode()}):\r\n{$response->getBody()}\r\n";
+            }
+        }
+
         $data = $data . "---------------------------------------\r\n\r\n";
 
         file_put_contents(DIR_LOGS . 'transactpro.log', $data, FILE_APPEND);
     }
+
+    public function logIncome($request) {
+        if (1 != $this->config->get('payment_transactpro_logging')) {
+            return;
+        }
+
+        $data = date('Y-m-d H:i:s') . "\r\n";
+
+        if ($request)  {
+            $data = $data . "<--- Request ({$request->get['route']}):\r\n" . html_entity_decode($request->post['json']) . "\r\n";
+        }
+
+        $data = $data . "---------------------------------------\r\n\r\n";
+
+        file_put_contents(DIR_LOGS . 'transactpro.log', $data, FILE_APPEND);
+    }
+
 }

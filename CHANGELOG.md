@@ -1,14 +1,23 @@
 # Release Notes
 
+## v1.0.3 (2019-03-25)
+
+### Fixed
+- Bugfix for getting DMS transaction name
+### Changed
+- Improve logging: log incoming requets to callback url
+
 ## v1.0.2 (2019-03-23)
 
 ### Added
 - Add ability to log Transact Pro Gateway requests and responses (can be turned on/off in plugin configuration)
 
+
 ## v1.0.1 (2019-01-15)
 
 ### Changed
 - Provide "merchant-transaction-id" information to meet new Transact Pro Gateway requirements
+
 
 ## v1.0 (2018-03-12)
 
@@ -20,6 +29,7 @@
 ### Changed
 - Transact Pro Gateway v3 PHP client library updated to the latest version
 
+
 ## v0.9 (2018-02-27)
 
 ### Added
@@ -27,6 +37,7 @@
 
 ### Changed
 - Hadnling errors when module not configured properly
+
 
 ## v0.8 (2018-02-19)
 - Initial release

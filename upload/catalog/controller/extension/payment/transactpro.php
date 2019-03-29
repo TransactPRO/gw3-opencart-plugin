@@ -188,12 +188,16 @@ class ControllerExtensionPaymentTransactpro extends Controller
             
             $json_status = json_last_error();
             if (JSON_ERROR_NONE == $json_status && isset($json['result-data']['gw']['gateway-transaction-id']) && isset($json['result-data']['gw']['status-code'])) {
+                $this->load->library('transactpro');
+
+                $this->transactpro->logIncome($this->request);
+
                 $transaction_guid = $json['result-data']['gw']['gateway-transaction-id'];
                 $transaction_status = (int) $json['result-data']['gw']['status-code'];
                 
                 $this->load->model('extension/payment/transactpro');
                 $this->load->model('checkout/order');
-                
+
                 $transactions = $this->model_extension_payment_transactpro->getTransactions(array(
                     'transaction_guid' => $transaction_guid
                 ));
