@@ -5,7 +5,7 @@
 ### Fixed
 - Bugfix for getting DMS transaction name
 ### Changed
-- Improve logging: log incoming requets to callback url
+- Improve logging: log incoming callback url requests
 
 ## v1.0.2 (2019-03-23)
 
